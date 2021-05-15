@@ -139,7 +139,7 @@ pointcloud::Ptr FPFHmatch(pointcloud::Ptr source, pointcloud::Ptr target, fpfhFe
 
     //Eigen::Matrix4f sac_trans;
     //sac_trans = sac_ia.getFinalTransformation();
-    pcl::io::savePLYFile("E:\\locks\\data\\result\\fpfh\\FPFH粗配准后的.ply", *align);
+    pcl::io::savePLYFile("..\\..\\..\\data\\result\\fpfh\\FPFH粗配准后的.ply", *align);
     return align;
 }
 
@@ -199,8 +199,8 @@ int main(int argc, char** argv)
     pointcloud::Ptr target(new pointcloud);
 
     //加载点云
-    pcl::io::loadPLYFile("E:\\locks\\data\\bunny\\data\\bun045.ply", *source);
-    pcl::io::loadPLYFile("E:\\locks\\data\\bunny\\data\\bun090.ply", *target);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun045.ply", *source);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *target);
     cout << "/" << endl;
     cout << "原始model点云数量：" << target->size() << endl;
     cout << "原始scene点云数量：" << source->size() << endl;

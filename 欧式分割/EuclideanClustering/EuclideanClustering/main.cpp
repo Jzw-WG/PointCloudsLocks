@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     // Read in the cloud data
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>), cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
 
-    if (pcl::io::loadPLYFile<pcl::PointXYZ>("E:\\locks\\data\\bunny\\data\\bun000.ply", *cloud) == -1)
+    if (pcl::io::loadPLYFile<pcl::PointXYZ>("..\\..\\..\\data\\bunny\\data\\bun000.ply", *cloud) == -1)
     {
         std::cout << "Cloud reading failed." << std::endl;
         return (-1);

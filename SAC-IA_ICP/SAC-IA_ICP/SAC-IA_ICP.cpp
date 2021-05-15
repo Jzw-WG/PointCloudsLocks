@@ -13,8 +13,8 @@ int main()
     PointCloud::Ptr target(new PointCloud);
 
     //加载点云
-    pcl::io::loadPLYFile("E:\\locks\\data\\bunny\\data\\bun045.ply", *source);
-    pcl::io::loadPLYFile("E:\\locks\\data\\bunny\\data\\bun090.ply", *target);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun045.ply", *source);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *target);
     //cout << "/" << endl;
     cout << "原始model点云数量：" << target->size() << endl;
     cout << "原始scene点云数量：" << source->size() << endl;
