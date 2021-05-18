@@ -1,8 +1,8 @@
-#include <SAC-IA.h>
+ï»¿#include <SAC-IA.h>
 
 
 
-// siftÏà¹Ø
+// siftç›¸å…³
 namespace pcl
 {
     template<>
@@ -18,7 +18,7 @@ namespace pcl
 
 void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in)
 {
-    //È¥³ıNaNµã ·ÀÖ¹compute±¨´í
+    //å»é™¤NaNç‚¹ é˜²æ­¢computeæŠ¥é”™
     pcl::PointCloud<pcl::PointXYZ>::iterator it = cloud_in->points.begin();
     while (it != cloud_in->points.end())
     {
@@ -35,52 +35,52 @@ void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in)
     }
 }
 
-//¹À¼Æ·¨Ïß
+//ä¼°è®¡æ³•çº¿
 void est_normals(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, pcl::PointCloud<pcl::Normal>::Ptr normals)
 {
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
-    est_normal.setKSearch(16);         //ÉèÖÃkÁÚÓòËÑË÷ãĞÖµÎª20¸öµã
-    est_normal.setInputCloud(cloud_in);   //ÉèÖÃÊäÈëÄ£ĞÍµãÔÆ
+    est_normal.setKSearch(16);         //è®¾ç½®ké‚»åŸŸæœç´¢é˜ˆå€¼ä¸º20ä¸ªç‚¹
+    est_normal.setInputCloud(cloud_in);   //è®¾ç½®è¾“å…¥æ¨¡å‹ç‚¹äº‘
     est_normal.setSearchMethod(tree);
-    est_normal.compute(*normals);//¼ÆËãµãÔÆ·¨Ïß
+    est_normal.compute(*normals);//è®¡ç®—ç‚¹äº‘æ³•çº¿
 }
 
-//¼ÆËãSIFT
+//è®¡ç®—SIFT
 void compute_sift(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr keypoints)
 {
     clock_t start = clock();
 
-    const float min_scale = 1;             //ÉèÖÃ³ß¶È¿Õ¼äÖĞ×îĞ¡³ß¶ÈµÄ±ê×¼Æ«²î
-    const int n_octaves = 6;               //ÉèÖÃ¸ßË¹½ğ×ÖËş×é£¨octave£©µÄÊıÄ¿
-    const int n_scales_per_octave = 6;     //ÉèÖÃÃ¿×é£¨octave£©¼ÆËãµÄ³ß¶È
-    const float min_contrast = 0.01;          //ÉèÖÃÏŞÖÆ¹Ø¼üµã¼ì²âµÄãĞÖµ
+    const float min_scale = 1;             //è®¾ç½®å°ºåº¦ç©ºé—´ä¸­æœ€å°å°ºåº¦çš„æ ‡å‡†åå·®
+    const int n_octaves = 6;               //è®¾ç½®é«˜æ–¯é‡‘å­—å¡”ç»„ï¼ˆoctaveï¼‰çš„æ•°ç›®
+    const int n_scales_per_octave = 6;     //è®¾ç½®æ¯ç»„ï¼ˆoctaveï¼‰è®¡ç®—çš„å°ºåº¦
+    const float min_contrast = 0.01;          //è®¾ç½®é™åˆ¶å…³é”®ç‚¹æ£€æµ‹çš„é˜ˆå€¼
 
-    pcl::SIFTKeypoint<pcl::PointXYZ, pcl::PointWithScale> sift;//´´½¨sift¹Ø¼üµã¼ì²â¶ÔÏó
+    pcl::SIFTKeypoint<pcl::PointXYZ, pcl::PointWithScale> sift;//åˆ›å»ºsiftå…³é”®ç‚¹æ£€æµ‹å¯¹è±¡
     pcl::PointCloud<pcl::PointWithScale> result;
-    sift.setInputCloud(cloud);//ÉèÖÃÊäÈëµãÔÆ
+    sift.setInputCloud(cloud);//è®¾ç½®è¾“å…¥ç‚¹äº‘
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
-    sift.setSearchMethod(tree);//´´½¨Ò»¸ö¿ÕµÄkdÊ÷¶ÔÏótree£¬²¢°ÑËü´«µİ¸øsift¼ì²â¶ÔÏó
-    sift.setScales(min_scale, n_octaves, n_scales_per_octave);//Ö¸¶¨ËÑË÷¹Ø¼üµãµÄ³ß¶È·¶Î§
-    sift.setMinimumContrast(min_contrast);//ÉèÖÃÏŞÖÆ¹Ø¼üµã¼ì²âµÄãĞÖµ
-    sift.compute(result);//Ö´ĞĞsift¹Ø¼üµã¼ì²â£¬±£´æ½á¹ûÔÚresult
+    sift.setSearchMethod(tree);//åˆ›å»ºä¸€ä¸ªç©ºçš„kdæ ‘å¯¹è±¡treeï¼Œå¹¶æŠŠå®ƒä¼ é€’ç»™siftæ£€æµ‹å¯¹è±¡
+    sift.setScales(min_scale, n_octaves, n_scales_per_octave);//æŒ‡å®šæœç´¢å…³é”®ç‚¹çš„å°ºåº¦èŒƒå›´
+    sift.setMinimumContrast(min_contrast);//è®¾ç½®é™åˆ¶å…³é”®ç‚¹æ£€æµ‹çš„é˜ˆå€¼
+    sift.compute(result);//æ‰§è¡Œsiftå…³é”®ç‚¹æ£€æµ‹ï¼Œä¿å­˜ç»“æœåœ¨result
 
-    copyPointCloud(result, *keypoints);//½«µãÀàĞÍpcl::PointWithScaleµÄÊı¾İ×ª»»ÎªµãÀàĞÍpcl::PointXYZµÄÊı¾İ
+    copyPointCloud(result, *keypoints);//å°†ç‚¹ç±»å‹pcl::PointWithScaleçš„æ•°æ®è½¬æ¢ä¸ºç‚¹ç±»å‹pcl::PointXYZçš„æ•°æ®
     clock_t end = clock();
 
-    cout << "sift¹Ø¼üµãÌáÈ¡Ê±¼ä£º" << (double)(end - start) / CLOCKS_PER_SEC << endl;
-    cout << "sift¹Ø¼üµãÊıÁ¿" << keypoints->size() << endl;
+    cout << "siftå…³é”®ç‚¹æå–æ—¶é—´ï¼š" << (double)(end - start) / CLOCKS_PER_SEC << endl;
+    cout << "siftå…³é”®ç‚¹æ•°é‡" << keypoints->size() << endl;
 }
 
 
-//¼ÆËãFPFH
+//è®¡ç®—FPFH
 fpfhFeature::Ptr compute_fpfh_feature(PointCloud::Ptr input_cloud, pcl::PointCloud<pcl::Normal>::Ptr normals)
 {
-    //fpfh ¹À¼Æ
+    //fpfh ä¼°è®¡
     fpfhFeature::Ptr fpfh(new fpfhFeature);
     pcl::FPFHEstimationOMP<pcl::PointXYZ, pcl::Normal, pcl::FPFHSignature33> est_fpfh;
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
-    est_fpfh.setNumberOfThreads(4); //Ö¸¶¨4ºË¼ÆËã
+    est_fpfh.setNumberOfThreads(4); //æŒ‡å®š4æ ¸è®¡ç®—
     est_fpfh.setInputCloud(input_cloud);
     est_fpfh.setInputNormals(normals);
     est_fpfh.setSearchMethod(tree);
@@ -90,21 +90,21 @@ fpfhFeature::Ptr compute_fpfh_feature(PointCloud::Ptr input_cloud, pcl::PointClo
     return fpfh;
 }
 
-//¼ÆËãVFH
+//è®¡ç®—VFH
 pcl::PointCloud<pcl::VFHSignature308>::Ptr computure_vfh_feature(PointCloud::Ptr input_cloud, pcl::PointCloud<pcl::Normal>::Ptr normals) {
 
     pcl::VFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> est_vfh;
     est_vfh.setInputCloud(input_cloud);
     est_vfh.setInputNormals(normals);
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);//´´½¨Ò»¸ö¿ÕµÄkdÊ÷¶ÔÏó£¬²¢°ÑËü´«µİ¸øFPFH¹À¼Æ¶ÔÏó¡£
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);//åˆ›å»ºä¸€ä¸ªç©ºçš„kdæ ‘å¯¹è±¡ï¼Œå¹¶æŠŠå®ƒä¼ é€’ç»™FPFHä¼°è®¡å¯¹è±¡ã€‚
     est_vfh.setSearchMethod(tree);
-    pcl::PointCloud<pcl::VFHSignature308>::Ptr vfh(new pcl::PointCloud<pcl::VFHSignature308>());//Êä³öÊı¾İ¼¯
-    est_vfh.compute(*vfh);//¼ÆËãÌØÕ÷Öµ
+    pcl::PointCloud<pcl::VFHSignature308>::Ptr vfh(new pcl::PointCloud<pcl::VFHSignature308>());//è¾“å‡ºæ•°æ®é›†
+    est_vfh.compute(*vfh);//è®¡ç®—ç‰¹å¾å€¼
 
     return vfh;
 }
 
-//FPFHÅä×¼
+//FPFHé…å‡†
 Eigen::Matrix4f FPFHmatch(PointCloud::Ptr source, PointCloud::Ptr target, fpfhFeature::Ptr source_fpfh, fpfhFeature::Ptr target_fpfh) {
     pcl::SampleConsensusInitialAlignment<pcl::PointXYZ, pcl::PointXYZ, pcl::FPFHSignature33> sac_ia;
     sac_ia.setInputSource(source);
@@ -112,17 +112,17 @@ Eigen::Matrix4f FPFHmatch(PointCloud::Ptr source, PointCloud::Ptr target, fpfhFe
     sac_ia.setInputTarget(target);
     sac_ia.setTargetFeatures(target_fpfh);
     PointCloud::Ptr align(new PointCloud);
-    sac_ia.setCorrespondenceRandomness(6); //ÉèÖÃ¼ÆËãĞ­·½²îÊ±Ñ¡Ôñ¶àÉÙ½üÁÚµã£¬¸ÃÖµÔ½´ó£¬Ğ­·À²îÔ½¾«È·£¬µ«ÊÇ¼ÆËãĞ§ÂÊÔ½µÍ.(¿ÉÊ¡)
+    sac_ia.setCorrespondenceRandomness(6); //è®¾ç½®è®¡ç®—åæ–¹å·®æ—¶é€‰æ‹©å¤šå°‘è¿‘é‚»ç‚¹ï¼Œè¯¥å€¼è¶Šå¤§ï¼Œåé˜²å·®è¶Šç²¾ç¡®ï¼Œä½†æ˜¯è®¡ç®—æ•ˆç‡è¶Šä½.(å¯çœ)
     sac_ia.align(*align);
 
     Eigen::Matrix4f sac_trans;
     sac_trans = sac_ia.getFinalTransformation();
-    //Ê¹ÓÃ´´½¨µÄ±ä»»¶ÔÎ´¹ıÂËµÄÊäÈëµãÔÆ½øĞĞ±ä»»
-    //pcl::io::savePLYFile("E:\\locks\\data\\result\\fpfh\\FPFH´ÖÅä×¼ºóµÄ.ply", *align);
+    //ä½¿ç”¨åˆ›å»ºçš„å˜æ¢å¯¹æœªè¿‡æ»¤çš„è¾“å…¥ç‚¹äº‘è¿›è¡Œå˜æ¢
+    //pcl::io::savePLYFile("E:\\locks\\data\\result\\fpfh\\FPFHç²—é…å‡†åçš„.ply", *align);
     return sac_trans;
 }
 
-//¼ÆËãFPFH¶ÔÓ¦¹ØÏµ
+//è®¡ç®—FPFHå¯¹åº”å…³ç³»
 boost::shared_ptr<pcl::Correspondences> CalculateCorrespondences(fpfhFeature::Ptr source_fpfh, fpfhFeature::Ptr target_fpfh) {
     pcl::registration::CorrespondenceEstimation<pcl::FPFHSignature33, pcl::FPFHSignature33> crude_cor_est;
 
@@ -136,7 +136,7 @@ boost::shared_ptr<pcl::Correspondences> CalculateCorrespondences(fpfhFeature::Pt
     return cru_correspondences;
 }
 
-//¿ÉÊÓ»¯
+//å¯è§†åŒ–
 void visualizeMatch(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::Ptr align, boost::shared_ptr<pcl::Correspondences> cru_correspondences) {
     boost::shared_ptr<pcl::visualization::PCLVisualizer> view(new pcl::visualization::PCLVisualizer("fpfh match"));
     int v1;
@@ -158,7 +158,7 @@ void visualizeMatch(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::
     view->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "aligend_cloud_v2");
     view->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "target_cloud_v2");
 
-    //view->addCorrespondences<pcl::PointXYZ>(source, target, *cru_correspondences, "correspondence", v1);//Ìí¼ÓÏÔÊ¾¶ÔÓ¦µã¶Ô
+    //view->addCorrespondences<pcl::PointXYZ>(source, target, *cru_correspondences, "correspondence", v1);//æ·»åŠ æ˜¾ç¤ºå¯¹åº”ç‚¹å¯¹
 
     while (!view->wasStopped())
     {
@@ -169,54 +169,40 @@ void visualizeMatch(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::
 
 
 
-PointCloud::Ptr startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target)
+Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::Ptr &result)
 {
     clock_t start, end, time;
     start = clock();
 
-    eraseInfPoint(target);
-    eraseInfPoint(source);
-
-    fpfhFeature::Ptr source_fpfh(new fpfhFeature());  // fpfhÌØÕ÷
+    fpfhFeature::Ptr source_fpfh(new fpfhFeature());  // fpfhç‰¹å¾
     fpfhFeature::Ptr target_fpfh(new fpfhFeature());
 
-    pcl::PointCloud<pcl::VFHSignature308>::Ptr source_vfh(new pcl::PointCloud<pcl::VFHSignature308>());  // vfhÌØÕ÷
+    pcl::PointCloud<pcl::VFHSignature308>::Ptr source_vfh(new pcl::PointCloud<pcl::VFHSignature308>());  // vfhç‰¹å¾
     pcl::PointCloud<pcl::VFHSignature308>::Ptr target_vfh(new pcl::PointCloud<pcl::VFHSignature308>());
 
     pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
     pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
 
-    //ÂË²¨
-    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
-    voxel_grid.setLeafSize(0.002, 0.002, 0.002);
-    voxel_grid.setInputCloud(source);
-    voxel_grid.filter(*source);
-
-    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid2;
-    voxel_grid2.setLeafSize(0.002, 0.002, 0.002);
-    voxel_grid2.setInputCloud(target);
-    voxel_grid2.filter(*target);
-
-
-    //¼ÆËã·¨Ïß
+    //è®¡ç®—æ³•çº¿
     est_normals(source, source_normals);
     est_normals(target, target_normals);
 
-    //¼ÆËãSIFT
-    pcl::PointCloud<pcl::PointXYZ>::Ptr source_keypoints_sift(new pcl::PointCloud<pcl::PointXYZ>);  // sift¹Ø¼üµã
-    pcl::PointCloud<pcl::PointXYZ>::Ptr target_keypoints_sift(new pcl::PointCloud<pcl::PointXYZ>);  // sift¹Ø¼üµã
-    compute_sift(source, source_keypoints_sift);
-    compute_sift(target, target_keypoints_sift);
+    ////è®¡ç®—SIFT
+    //pcl::PointCloud<pcl::PointXYZ>::Ptr source_keypoints_sift(new pcl::PointCloud<pcl::PointXYZ>);  // siftå…³é”®ç‚¹
+    //pcl::PointCloud<pcl::PointXYZ>::Ptr target_keypoints_sift(new pcl::PointCloud<pcl::PointXYZ>);  // siftå…³é”®ç‚¹
+    //compute_sift(source, source_keypoints_sift);
+    //compute_sift(target, target_keypoints_sift);
+
     /*
-    //¼ÆËãVFH
+    //è®¡ç®—VFH
     target_vfh = computure_vfh_feature(target, target_normals);
     pcl::io::savePLYFile("", *target_vfh);
     */
-    //¼ÆËãFPFH
+    //è®¡ç®—FPFH
     source_fpfh = compute_fpfh_feature(source, source_normals);
     target_fpfh = compute_fpfh_feature(target, target_normals);
 
-    //FPFHÅä×¼
+    //FPFHé…å‡†
     Eigen::Matrix4f sac_trans;
     sac_trans = FPFHmatch(source, target, source_fpfh, target_fpfh);
 
@@ -224,7 +210,7 @@ PointCloud::Ptr startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target)
     cout << "calculate time is: " << float(end - start) / CLOCKS_PER_SEC << endl;
 
 
-    //¼ÆËã¶ÔÓ¦¹ØÏµ
+    //è®¡ç®—å¯¹åº”å…³ç³»
     boost::shared_ptr<pcl::Correspondences> cru_correspondences(new pcl::Correspondences);
     cru_correspondences = CalculateCorrespondences(source_fpfh, target_fpfh);
 
@@ -232,12 +218,12 @@ PointCloud::Ptr startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target)
 
 
     PointCloud::Ptr sac_ia_result(new PointCloud);
-    //Ê¹ÓÃ´´½¨µÄ±ä»»¶ÔÎ´¹ıÂËµÄÊäÈëµãÔÆ½øĞĞ±ä»»
+    //ä½¿ç”¨åˆ›å»ºçš„å˜æ¢å¯¹æœªè¿‡æ»¤çš„è¾“å…¥ç‚¹äº‘è¿›è¡Œå˜æ¢
     pcl::transformPointCloud(*source, *sac_ia_result, sac_trans);
-
-    //¿ÉÊÓ»¯
+    result = sac_ia_result;
+    //å¯è§†åŒ–
     visualizeMatch(source, target, sac_ia_result, cru_correspondences);
-    return sac_ia_result;
+    return sac_trans;
 }
 
 

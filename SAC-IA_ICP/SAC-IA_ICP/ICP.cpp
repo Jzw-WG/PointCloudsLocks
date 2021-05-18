@@ -1,8 +1,8 @@
-#include <ICP.h>
+ï»¿#include <ICP.h>
 
 bool next_iteration = false;
 
-void print4x4Matrix(const Eigen::Matrix4d& matrix)    //´òÓ¡Ğı×ª¾ØÕóºÍÆ½ÒÆ¾ØÕó
+void print4x4Matrix(const Eigen::Matrix4d& matrix)    //æ‰“å°æ—‹è½¬çŸ©é˜µå’Œå¹³ç§»çŸ©é˜µ
 {
     printf("Rotation matrix :\n");
     printf("    | %6.3f %6.3f %6.3f | \n", matrix(0, 0), matrix(0, 1), matrix(0, 2));
@@ -14,34 +14,35 @@ void print4x4Matrix(const Eigen::Matrix4d& matrix)    //´òÓ¡Ğı×ª¾ØÕóºÍÆ½ÒÆ¾ØÕó
 
 void keyboardEventOccurred(const pcl::visualization::KeyboardEvent& event,
     void* nothing)
-{  //Ê¹ÓÃ¿Õ¸ñ¼üÀ´Ôö¼Óµü´ú´ÎÊı£¬²¢¸üĞÂÏÔÊ¾
+{  //ä½¿ç”¨ç©ºæ ¼é”®æ¥å¢åŠ è¿­ä»£æ¬¡æ•°ï¼Œå¹¶æ›´æ–°æ˜¾ç¤º
     if (event.getKeySym() == "space" && event.keyDown())
         next_iteration = true;
 }
 
-int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, int iterations) // Ä¬ÈÏµÄICPµü´ú´ÎÊı
+int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, int iterations) // é»˜è®¤çš„ICPè¿­ä»£æ¬¡æ•°
 {
-    // ÉêÃ÷µãÔÆ½«ÒªÊ¹ÓÃµÄ
-    PointCloudT::Ptr cloud_tr(new PointCloudT);  // ×ª»»ºóµÄµãÔÆ
-    PointCloudT::Ptr cloud_icp(new PointCloudT);  // ICP Êä³öµãÔÆ
+    // ç”³æ˜ç‚¹äº‘å°†è¦ä½¿ç”¨çš„
+    PointCloudT::Ptr cloud_tr(new PointCloudT);  // è½¬æ¢åçš„ç‚¹äº‘
+    PointCloudT::Ptr cloud_icp(new PointCloudT);  // ICP è¾“å‡ºç‚¹äº‘
+    PointCloudT::Ptr cloud_icp_origin(new PointCloudT);  // ICP è¾“å‡ºç‚¹äº‘
 
-    pcl::console::TicToc time;     //ÉêÃ÷Ê±¼ä¼ÇÂ¼
-    time.tic();       //time.tic¿ªÊ¼  time.toc½áÊøÊ±¼ä
+    pcl::console::TicToc time;     //ç”³æ˜æ—¶é—´è®°å½•
+    time.tic();       //time.ticå¼€å§‹  time.tocç»“æŸæ—¶é—´
     
-    //¶¨ÒåĞı×ª¾ØÕóºÍÆ½ÒÆÏòÁ¿Matrix4dÊÇÎª4*4µÄ¾ØÕó
-    Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();  //³õÊ¼»¯
+    //å®šä¹‰æ—‹è½¬çŸ©é˜µå’Œå¹³ç§»å‘é‡Matrix4dæ˜¯ä¸º4*4çš„çŸ©é˜µ
+    Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();  //åˆå§‹åŒ–
 
-    //// Ğı×ª¾ØÕóµÄ¶¨Òå¿ÉÒÔ²Î¿¼ ( https://en.wikipedia.org/wiki/Rotation_matrix)
-    //double theta = M_PI / 8;  // Ğı×ªµÄ½Ç¶ÈÓÃ»¡¶ÈµÄ±íÊ¾·½·¨
+    //// æ—‹è½¬çŸ©é˜µçš„å®šä¹‰å¯ä»¥å‚è€ƒ ( https://en.wikipedia.org/wiki/Rotation_matrix)
+    //double theta = M_PI / 8;  // æ—‹è½¬çš„è§’åº¦ç”¨å¼§åº¦çš„è¡¨ç¤ºæ–¹æ³•
     //transformation_matrix(0, 0) = cos(theta);
     //transformation_matrix(0, 1) = -sin(theta);
     //transformation_matrix(1, 0) = sin(theta);
     //transformation_matrix(1, 1) = cos(theta);
 
-    //// ZÖáµÄÆ½ÒÆÏòÁ¿ (0.4 meters)
+    //// Zè½´çš„å¹³ç§»å‘é‡ (0.4 meters)
     //transformation_matrix(2, 3) = 0.4;
 
-    ////´òÓ¡×ª»»¾ØÕó
+    ////æ‰“å°è½¬æ¢çŸ©é˜µ
     //std::cout << "Applying this rigid transformation to: cloud_in -> cloud_icp" << std::endl;
     //print4x4Matrix(transformation_matrix);
 
@@ -62,27 +63,29 @@ int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, int ite
             ++it;
     }
 
-    // //Ö´ĞĞµãÔÆ×ª»»
+    // //æ‰§è¡Œç‚¹äº‘è½¬æ¢
     //pcl::transformPointCloud(*cloud_in, *cloud_icp, transformation_matrix);
-    //*cloud_tr = *cloud_icp;  // ±¸·İcloud_icp¸³Öµ¸øcloud_trÎªºóÆÚÊ¹ÓÃ
+    //*cloud_tr = *cloud_icp;  // å¤‡ä»½cloud_icpèµ‹å€¼ç»™cloud_trä¸ºåæœŸä½¿ç”¨
     *cloud_icp = *cloud_in;
-    *cloud_tr = *cloud_tar;
-    // µü´ú×î½üµãËã·¨
-    time.tic();        //Ê±¼ä
+    *cloud_tr = *cloud_in_origin;
+    *cloud_icp_origin = *cloud_in_origin;
+    // è¿­ä»£æœ€è¿‘ç‚¹ç®—æ³•
+    time.tic();        //æ—¶é—´
     pcl::IterativeClosestPoint<PointT, PointT> icp;
-    icp.setMaximumIterations(iterations);    //ÉèÖÃ×î´óµü´ú´ÎÊıiterations=true
-    icp.setInputSource(cloud_icp);   //ÉèÖÃÊäÈëµÄµãÔÆ
-    icp.setInputTarget(cloud_tar);    //Ä¿±êµãÔÆ
-    icp.align(*cloud_icp);          //Æ¥ÅäºóÔ´µãÔÆ
-    icp.setMaximumIterations(1);  // ÉèÖÃÎª1ÒÔ±ãÏÂ´Îµ÷ÓÃ
-    icp.setMaxCorrespondenceDistance(0.05);
+    icp.setMaximumIterations(iterations);    //è®¾ç½®æœ€å¤§è¿­ä»£æ¬¡æ•°iterations=true
+    icp.setInputSource(cloud_icp);   //è®¾ç½®è¾“å…¥çš„ç‚¹äº‘
+    icp.setInputTarget(cloud_tar);    //ç›®æ ‡ç‚¹äº‘
+    icp.align(*cloud_icp);          //åŒ¹é…åæºç‚¹äº‘
+    icp.setMaximumIterations(1);  // è®¾ç½®ä¸º1ä»¥ä¾¿ä¸‹æ¬¡è°ƒç”¨
+    //icp.setMaxCorrespondenceDistance(0.05);
     std::cout << "Applied " << iterations << " ICP iteration(s) in " << time.toc() << " ms" << std::endl;
 
-    if (icp.hasConverged())//icp.hasConverged ()=1£¨true£©Êä³ö±ä»»¾ØÕóµÄÊÊºÏĞÔÆÀ¹À
+    if (icp.hasConverged())//icp.hasConverged ()=1ï¼ˆtrueï¼‰è¾“å‡ºå˜æ¢çŸ©é˜µçš„é€‚åˆæ€§è¯„ä¼°
     {
         std::cout << "\nICP has converged, score is " << icp.getFitnessScore() << std::endl;
         std::cout << "\nICP transformation " << iterations << " : cloud_icp -> cloud_in" << std::endl;
         transformation_matrix = icp.getFinalTransformation().cast<double>();
+        pcl::transformPointCloud(*cloud_in_origin, *cloud_icp_origin, transformation_matrix);
         print4x4Matrix(transformation_matrix);
     }
     else
@@ -91,79 +94,81 @@ int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, int ite
         return (-1);
     }
 
-    // ¿ÉÊÓ»¯ICPµÄ¹ı³ÌÓë½á¹û
+    // å¯è§†åŒ–ICPçš„è¿‡ç¨‹ä¸ç»“æœ
     pcl::visualization::PCLVisualizer viewer("ICP demo");
-    // ´´½¨Á½¸ö¹Û²ìÊÓµã
+    // åˆ›å»ºä¸¤ä¸ªè§‚å¯Ÿè§†ç‚¹
     int v1(0);
     int v2(1);
     viewer.createViewPort(0.0, 0.0, 0.5, 1.0, v1);
     viewer.createViewPort(0.5, 0.0, 1.0, 1.0, v2);
 
-    // ¶¨ÒåÏÔÊ¾µÄÑÕÉ«ĞÅÏ¢
+    // å®šä¹‰æ˜¾ç¤ºçš„é¢œè‰²ä¿¡æ¯
     float bckgr_gray_level = 0.0;  // Black
     float txt_gray_lvl = 1.0 - bckgr_gray_level;
 
-    // Ô­Ê¼µÄµãÔÆÉèÖÃÎª°×É«µÄ
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h(cloud_tar, (int)255 * txt_gray_lvl, (int)255 * txt_gray_lvl,
+    // åŸå§‹çš„ç‚¹äº‘è®¾ç½®ä¸ºç™½è‰²çš„
+    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h(cloud_tar_origin, (int)255 * txt_gray_lvl, (int)255 * txt_gray_lvl,
         (int)255 * txt_gray_lvl);
-    viewer.addPointCloud(cloud_tar, cloud_in_color_h, "cloud_in_v1", v1);//ÉèÖÃÔ­Ê¼µÄµãÔÆ¶¼ÊÇÏÔÊ¾Îª°×É«
-    viewer.addPointCloud(cloud_tar, cloud_in_color_h, "cloud_in_v2", v2);
+    viewer.addPointCloud(cloud_tar_origin, cloud_in_color_h, "cloud_in_v1", v1);//è®¾ç½®åŸå§‹çš„ç‚¹äº‘éƒ½æ˜¯æ˜¾ç¤ºä¸ºç™½è‰²
+    viewer.addPointCloud(cloud_tar_origin, cloud_in_color_h, "cloud_in_v2", v2);
 
-    // ×ª»»ºóµÄµãÔÆÏÔÊ¾ÎªÂÌÉ«
+    // è½¬æ¢åçš„ç‚¹äº‘æ˜¾ç¤ºä¸ºç»¿è‰²
     pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_tr_color_h(cloud_tr, 20, 180, 20);
     viewer.addPointCloud(cloud_tr, cloud_tr_color_h, "cloud_tr_v1", v1);
 
-    // ICPÅä×¼ºóµÄµãÔÆÎªºìÉ«
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h(cloud_icp, 180, 20, 20);
-    viewer.addPointCloud(cloud_icp, cloud_icp_color_h, "cloud_icp_v2", v2);
+    // ICPé…å‡†åçš„ç‚¹äº‘ä¸ºçº¢è‰²
+    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h(cloud_icp_origin, 180, 20, 20);
+    viewer.addPointCloud(cloud_icp_origin, cloud_icp_color_h, "cloud_icp_v2", v2);
 
-    // ¼ÓÈëÎÄ±¾µÄÃèÊöÔÚ¸÷×ÔµÄÊÓ¿Ú½çÃæ
-   //ÔÚÖ¸¶¨ÊÓ¿Úviewport=v1Ìí¼Ó×Ö·û´®¡°white ¡£¡£¡£¡±ÆäÖĞ"icp_info_1"ÊÇÌí¼Ó×Ö·û´®µÄID±êÖ¾£¬£¨10£¬15£©Îª×ø±ê16Îª×Ö·û´óĞ¡ ºóÃæ·Ö±ğÊÇRGBÖµ
+    // åŠ å…¥æ–‡æœ¬çš„æè¿°åœ¨å„è‡ªçš„è§†å£ç•Œé¢
+   //åœ¨æŒ‡å®šè§†å£viewport=v1æ·»åŠ å­—ç¬¦ä¸²â€œwhite ã€‚ã€‚ã€‚â€å…¶ä¸­"icp_info_1"æ˜¯æ·»åŠ å­—ç¬¦ä¸²çš„IDæ ‡å¿—ï¼Œï¼ˆ10ï¼Œ15ï¼‰ä¸ºåæ ‡16ä¸ºå­—ç¬¦å¤§å° åé¢åˆ†åˆ«æ˜¯RGBå€¼
     viewer.addText("White: Original point cloud\nGreen: Matrix transformed point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_1", v1);
     viewer.addText("White: Original point cloud\nRed: ICP aligned point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2", v2);
 
     std::stringstream ss;
-    ss << iterations;            //ÊäÈëµÄµü´úµÄ´ÎÊı
+    ss << iterations;            //è¾“å…¥çš„è¿­ä»£çš„æ¬¡æ•°
     std::string iterations_cnt = "ICP iterations = " + ss.str();
     viewer.addText(iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt", v2);
 
-    // ÉèÖÃ±³¾°ÑÕÉ«
+    // è®¾ç½®èƒŒæ™¯é¢œè‰²
     viewer.setBackgroundColor(bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v1);
     viewer.setBackgroundColor(bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v2);
 
-    // ÉèÖÃÏà»úµÄ×ø±êºÍ·½Ïò
+    // è®¾ç½®ç›¸æœºçš„åæ ‡å’Œæ–¹å‘
     viewer.setCameraPosition(-3.68332, 2.94092, 5.71266, 0.289847, 0.921947, -0.256907, 0);
-    viewer.setSize(1280, 1024);  // ¿ÉÊÓ»¯´°¿ÚµÄ´óĞ¡
+    viewer.setSize(1280, 1024);  // å¯è§†åŒ–çª—å£çš„å¤§å°
 
-    // ×¢²á°´¼ü»Øµ÷º¯Êı
+    // æ³¨å†ŒæŒ‰é”®å›è°ƒå‡½æ•°
     viewer.registerKeyboardCallback(&keyboardEventOccurred, (void*)NULL);
 
-    // ÏÔÊ¾
+    // æ˜¾ç¤º
     while (!viewer.wasStopped())
     {
         viewer.spinOnce();
 
-        //°´ÏÂ¿Õ¸ñ¼üµÄº¯Êı
+        //æŒ‰ä¸‹ç©ºæ ¼é”®çš„å‡½æ•°
         if (next_iteration)
         {
-            // ×î½üµãµü´úËã·¨
+            // æœ€è¿‘ç‚¹è¿­ä»£ç®—æ³•
             time.tic();
             icp.align(*cloud_icp);
             std::cout << "Applied 1 ICP iteration in " << time.toc() << " ms" << std::endl;
 
             if (icp.hasConverged())
             {
-                printf("\033[11A");  // Go up 11 lines in terminal output.
-                printf("\nICP has converged, score is %+.0e\n", icp.getFitnessScore());
+                //printf("\033[11A");  // Go up 11 lines in terminal output.
+                //printf("\nICP has converged, score is ", icp.getFitnessScore());
+                std::cout << "\nICP has converged, score is " << icp.getFitnessScore() << std::endl;
                 std::cout << "\nICP transformation " << ++iterations << " : cloud_icp -> cloud_in" << std::endl;
                 transformation_matrix *= icp.getFinalTransformation().cast<double>();  // WARNING /!\ This is not accurate!
-                print4x4Matrix(transformation_matrix);  // ´òÓ¡¾ØÕó±ä»»
+                pcl::transformPointCloud(*cloud_in_origin, *cloud_icp_origin, transformation_matrix);
+                print4x4Matrix(transformation_matrix);  // æ‰“å°çŸ©é˜µå˜æ¢
 
                 ss.str("");
                 ss << iterations;
                 std::string iterations_cnt = "ICP iterations = " + ss.str();
                 viewer.updateText(iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
-                viewer.updatePointCloud(cloud_icp, cloud_icp_color_h, "cloud_icp_v2");
+                viewer.updatePointCloud(cloud_icp_origin, cloud_icp_color_h, "cloud_icp_v2");
             }
             else
             {

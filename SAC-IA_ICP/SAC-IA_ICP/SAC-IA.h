@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <ctime>
@@ -11,19 +11,19 @@
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <boost/thread/thread.hpp>
-#include <pcl/features/fpfh_omp.h> //°üº¬fpfh¼ÓËÙ¼ÆËãµÄomp(¶àºË²¢ĞĞ¼ÆËã)
+#include <pcl/features/fpfh_omp.h> //åŒ…å«fpfhåŠ é€Ÿè®¡ç®—çš„omp(å¤šæ ¸å¹¶è¡Œè®¡ç®—)
 #include <pcl/registration/correspondence_estimation.h>
-#include <pcl/registration/correspondence_rejection_features.h> //ÌØÕ÷µÄ´íÎó¶ÔÓ¦¹ØÏµÈ¥³ı
-#include <pcl/registration/correspondence_rejection_sample_consensus.h> //Ëæ»ú²ÉÑùÒ»ÖÂĞÔÈ¥³ı
+#include <pcl/registration/correspondence_rejection_features.h> //ç‰¹å¾çš„é”™è¯¯å¯¹åº”å…³ç³»å»é™¤
+#include <pcl/registration/correspondence_rejection_sample_consensus.h> //éšæœºé‡‡æ ·ä¸€è‡´æ€§å»é™¤
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/approximate_voxel_grid.h>
-#include <pcl/keypoints/sift_keypoint.h>   // shift¹Ø¼üµãÏà¹Ø
-#include <pcl/features/vfh.h>                     //VFHÌØÕ÷¹À¼ÆÀàÍ·ÎÄ¼ş
+#include <pcl/keypoints/sift_keypoint.h>   // shiftå…³é”®ç‚¹ç›¸å…³
+#include <pcl/features/vfh.h>                     //VFHç‰¹å¾ä¼°è®¡ç±»å¤´æ–‡ä»¶
 
 using namespace std;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 typedef pcl::PointCloud<pcl::Normal> pointnormal;
 typedef pcl::PointCloud<pcl::FPFHSignature33> fpfhFeature;
 
-PointCloud::Ptr startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target);
+Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::Ptr &result);
 void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in);

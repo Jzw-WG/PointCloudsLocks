@@ -1,7 +1,7 @@
-#pragma once
+ï»¿#pragma once
 #include <iostream>
 #include <string>
-#include <pcl/io/ply_io.h>    //PLYÏà¹ØÍ·ÎÄ¼ş
+#include <pcl/io/ply_io.h>    //PLYç›¸å…³å¤´æ–‡ä»¶
 #include <pcl/point_types.h>  //
 #include <sstream>
 #include <pcl/registration/icp.h>
@@ -9,6 +9,6 @@
 #include <pcl/console/time.h> 
 
 typedef pcl::PointXYZ PointT;
-typedef pcl::PointCloud<PointT> PointCloudT;   //¶¨ÒåµãÔÆµÄ¸ñÊ½
+typedef pcl::PointCloud<PointT> PointCloudT;   //å®šä¹‰ç‚¹äº‘çš„æ ¼å¼
 
-int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, int iterations = 1);
+int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, int iterations = 1);
