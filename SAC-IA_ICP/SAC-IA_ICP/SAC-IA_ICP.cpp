@@ -6,40 +6,52 @@
 using namespace std;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
+void voxelFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, float lx, float ly, float lz)
+{
+    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
+    voxel_grid.setLeafSize(lx, ly, lz);
+    voxel_grid.setInputCloud(cloud);
+    voxel_grid.filter(*cloud_filtered);
+}
+
 int main()
 {
     PointCloud::Ptr result(new PointCloud);
     PointCloud::Ptr source(new PointCloud);
     PointCloud::Ptr target(new PointCloud);
-    PointCloud::Ptr source_filterd(new PointCloud);
-    PointCloud::Ptr target_filterd(new PointCloud);
+    PointCloud::Ptr source_filtered(new PointCloud);
+    PointCloud::Ptr target_filtered(new PointCloud);
 
     //加载点云
     pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun045.ply", *source);
     pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *target);
     //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", *target);
     //cout << "/" << endl;
-    cout << "原始model点云数量：" << target->size() << endl;
-    cout << "原始scene点云数量：" << source->size() << endl;
 
     eraseInfPoint(target);
     eraseInfPoint(source);
 
-    //滤波
-    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
-    voxel_grid.setLeafSize(0.005, 0.005, 0.005);
-    voxel_grid.setInputCloud(source);
-    voxel_grid.filter(*source_filterd);
+    cout << "原始model点云数量：" << target->size() << endl;
+    cout << "原始scene点云数量：" << source->size() << endl;
 
-    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid2;
-    voxel_grid2.setLeafSize(0.005, 0.005, 0.005);
-    voxel_grid2.setInputCloud(target);
-    voxel_grid2.filter(*target_filterd);
+    //滤波
+    voxelFilter(source, source_filtered, 0.005, 0.005, 0.005);
+    voxelFilter(target, target_filtered, 0.005, 0.005, 0.005);
+
+    cout << "滤波后model点云数量：" << target_filtered->size() << endl;
+    cout << "滤波后scene点云数量：" << source_filtered->size() << endl;
+
+    pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
+    pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
+
+    //计算法线
+    //est_normals(source, source_normals);//TODO 提取法线计算到外部
+    //est_normals(target, target_normals);
 
     Eigen::Matrix4f sac_trans;
-    sac_trans = startSAC_IA(source_filterd, target_filterd, result);
+    sac_trans = startSAC_IA(source_filtered, target_filtered, result);
     pcl::transformPointCloud(*source, *source, sac_trans);
 
-    showICPviewer(result, target_filterd, source, target);
+    showICPviewer(result, target_filtered, source, target);
     return 0;
 }
