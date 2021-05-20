@@ -1,4 +1,4 @@
-﻿#include <SAC-IA.h>
+#include <SAC-IA.h>
 
 
 
@@ -158,7 +158,7 @@ void visualizeMatch(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::
     view->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "aligend_cloud_v2");
     view->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "target_cloud_v2");
 
-    //view->addCorrespondences<pcl::PointXYZ>(source, target, *cru_correspondences, "correspondence", v1);//添加显示对应点对
+    view->addCorrespondences<pcl::PointXYZ>(source, target, *cru_correspondences, "correspondence", v1);//添加显示对应点对
 
     while (!view->wasStopped())
     {
