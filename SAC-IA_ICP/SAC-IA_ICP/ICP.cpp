@@ -1,4 +1,4 @@
-#include <ICP.h>
+﻿#include <ICP.h>
 
 bool next_iteration = false;
 bool icp_finished = false;
@@ -50,21 +50,6 @@ int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCl
     //print4x4Matrix(transformation_matrix);
 
     //pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    PointCloudT::iterator it = cloud_in -> points.begin();
-    while (it != cloud_in -> points.end())
-    {
-        float x, y, z, rgb;
-        x = it->x;
-        y = it->y;
-        z = it->z;
-        //cout << "x: " << x << "  y: " << y << "  z: " << z << "  rgb: " << rgb << endl;
-        if (!pcl_isfinite(x) || !pcl_isfinite(y) || !pcl_isfinite(z) || !pcl_isfinite(rgb))
-        {
-            it = cloud_in ->points.erase(it);
-        }
-        else
-            ++it;
-    }
 
     // //执行点云转换
     //pcl::transformPointCloud(*cloud_in, *cloud_icp, transformation_matrix);
@@ -80,7 +65,7 @@ int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCl
     icp.setInputTarget(cloud_tar);    //目标点云
     icp.align(*cloud_icp);          //匹配后源点云
     icp.setMaximumIterations(1);  // 设置为1以便下次调用
-    //icp.setMaxCorrespondenceDistance(0.05);
+    icp.setMaxCorrespondenceDistance(0.005);
     std::cout << "Applied " << iterations << " ICP iteration(s) in " << time.toc() << " ms" << std::endl;
 
     if (icp.hasConverged())//icp.hasConverged ()=1（true）输出变换矩阵的适合性评估

@@ -44,12 +44,9 @@ int main()
     pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
     pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
 
-    //计算法线
-    //est_normals(source, source_normals);//TODO 提取法线计算到外部
-    //est_normals(target, target_normals);
-
     Eigen::Matrix4f sac_trans;
-    sac_trans = startSAC_IA(source_filtered, target_filtered, result);
+    sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result, source_normals, target_normals);//会提取已计算的法线
+    
     pcl::transformPointCloud(*source, *source, sac_trans);
 
     showICPviewer(result, target_filtered, source, target);

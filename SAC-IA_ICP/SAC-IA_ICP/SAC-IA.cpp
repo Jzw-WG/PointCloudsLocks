@@ -1,4 +1,4 @@
-#include <SAC-IA.h>
+﻿#include <SAC-IA.h>
 
 
 
@@ -36,13 +36,17 @@ void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in)
 }
 
 //估计法线
-void est_normals(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, pcl::PointCloud<pcl::Normal>::Ptr normals)
+void est_normals(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, pcl::PointCloud<pcl::Normal>::Ptr normals, PointCloud::Ptr origin_cloud)
 {
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
     est_normal.setKSearch(16);         //设置k邻域搜索阈值为20个点
     est_normal.setInputCloud(cloud_in);   //设置输入模型点云
     est_normal.setSearchMethod(tree);
+    if (origin_cloud != NULL) {
+        est_normal.setSearchSurface(origin_cloud);
+    }
+    
     est_normal.compute(*normals);//计算点云法线
 }
 
@@ -74,7 +78,7 @@ void compute_sift(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl
 
 
 //计算FPFH
-fpfhFeature::Ptr compute_fpfh_feature(PointCloud::Ptr input_cloud, pcl::PointCloud<pcl::Normal>::Ptr normals)
+fpfhFeature::Ptr compute_fpfh_feature(PointCloud::Ptr input_cloud, pcl::PointCloud<pcl::Normal>::Ptr normals, PointCloud::Ptr origin_cloud = NULL)
 {
     //fpfh 估计
     fpfhFeature::Ptr fpfh(new fpfhFeature);
@@ -85,6 +89,9 @@ fpfhFeature::Ptr compute_fpfh_feature(PointCloud::Ptr input_cloud, pcl::PointClo
     est_fpfh.setInputNormals(normals);
     est_fpfh.setSearchMethod(tree);
     est_fpfh.setKSearch(16);
+    if (origin_cloud != NULL) {
+        est_fpfh.setSearchSurface(origin_cloud);
+    }
     est_fpfh.compute(*fpfh);
 
     return fpfh;
@@ -169,7 +176,8 @@ void visualizeMatch(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::
 
 
 
-Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::Ptr &result)
+Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::Ptr source_origin, PointCloud::Ptr target_origin,
+    PointCloud::Ptr &result, pcl::PointCloud<pcl::Normal>::Ptr source_normals, pcl::PointCloud<pcl::Normal>::Ptr target_normals)
 {
     clock_t start, end, time;
     start = clock();
@@ -180,12 +188,9 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
     pcl::PointCloud<pcl::VFHSignature308>::Ptr source_vfh(new pcl::PointCloud<pcl::VFHSignature308>());  // vfh特征
     pcl::PointCloud<pcl::VFHSignature308>::Ptr target_vfh(new pcl::PointCloud<pcl::VFHSignature308>());
 
-    pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
-    pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
-
     //计算法线
-    est_normals(source, source_normals);
-    est_normals(target, target_normals);
+    est_normals(source, source_normals, source_origin);
+    est_normals(target, target_normals, target_origin);
 
     ////计算SIFT
     //pcl::PointCloud<pcl::PointXYZ>::Ptr source_keypoints_sift(new pcl::PointCloud<pcl::PointXYZ>);  // sift关键点
@@ -199,8 +204,8 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
     pcl::io::savePLYFile("", *target_vfh);
     */
     //计算FPFH
-    source_fpfh = compute_fpfh_feature(source, source_normals);
-    target_fpfh = compute_fpfh_feature(target, target_normals);
+    source_fpfh = compute_fpfh_feature(source, source_normals/*, source_origin*/);
+    target_fpfh = compute_fpfh_feature(target, target_normals/*, target_origin*/);
 
     //FPFH配准
     Eigen::Matrix4f sac_trans;
