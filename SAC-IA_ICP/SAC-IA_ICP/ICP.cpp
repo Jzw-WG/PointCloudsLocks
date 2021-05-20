@@ -1,6 +1,7 @@
-﻿#include <ICP.h>
+#include <ICP.h>
 
 bool next_iteration = false;
+bool icp_finished = false;
 
 void print4x4Matrix(const Eigen::Matrix4d& matrix)    //打印旋转矩阵和平移矩阵
 {
@@ -17,6 +18,8 @@ void keyboardEventOccurred(const pcl::visualization::KeyboardEvent& event,
 {  //使用空格键来增加迭代次数，并更新显示
     if (event.getKeySym() == "space" && event.keyDown())
         next_iteration = true;
+    if (event.getKeySym() == "Escape" && event.keyDown())
+        icp_finished = true;
 }
 
 int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, int iterations) // 默认的ICP迭代次数
@@ -145,7 +148,9 @@ int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCl
     while (!viewer.wasStopped())
     {
         viewer.spinOnce();
-
+        if (icp_finished) {
+            break;
+        }
         //按下空格键的函数
         if (next_iteration)
         {
