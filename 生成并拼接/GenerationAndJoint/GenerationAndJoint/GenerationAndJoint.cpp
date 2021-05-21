@@ -126,5 +126,11 @@ int main()
     // 设置相机的坐标和方向
     viewer.setCameraPosition(-3.68332, 2.94092, 5.71266, 0.289847, 0.921947, -0.256907, 0);
     viewer.setSize(1280, 1024);  // 可视化窗口的大小
+
+    while (!viewer.wasStopped())
+    {
+        viewer.spinOnce();
+        //boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+    }
     return 0;
 }
