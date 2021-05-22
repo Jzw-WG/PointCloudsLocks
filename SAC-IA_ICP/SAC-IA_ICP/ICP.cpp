@@ -60,12 +60,11 @@ int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCl
     // 迭代最近点算法
     time.tic();        //时间
     pcl::IterativeClosestPoint<PointT, PointT> icp;
-    icp.setMaximumIterations(iterations);    //设置最大迭代次数iterations=true
+    icp.setMaximumIterations(iterations);    //设置最大迭代次数iterations  // 设置为1以便下次调用
     icp.setInputSource(cloud_icp);   //设置输入的点云
     icp.setInputTarget(cloud_tar);    //目标点云
-    icp.align(*cloud_icp);          //匹配后源点云
-    icp.setMaximumIterations(1);  // 设置为1以便下次调用
     icp.setMaxCorrespondenceDistance(0.005);
+    icp.align(*cloud_icp);          //匹配后源点云
     std::cout << "Applied " << iterations << " ICP iteration(s) in " << time.toc() << " ms" << std::endl;
 
     if (icp.hasConverged())//icp.hasConverged ()=1（true）输出变换矩阵的适合性评估

@@ -214,13 +214,9 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
     end = clock();
     cout << "calculate time is: " << float(end - start) / CLOCKS_PER_SEC << endl;
 
-
     //计算对应关系
     boost::shared_ptr<pcl::Correspondences> cru_correspondences(new pcl::Correspondences);
     cru_correspondences = CalculateCorrespondences(source_fpfh, target_fpfh);
-
-    
-
 
     PointCloud::Ptr sac_ia_result(new PointCloud);
     //使用创建的变换对未过滤的输入点云进行变换
