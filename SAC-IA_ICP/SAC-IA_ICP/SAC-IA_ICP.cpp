@@ -23,8 +23,8 @@ int main()
     PointCloud::Ptr target_filtered(new PointCloud);
 
     //加载点云
-    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun045.ply", *source);
-    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *target);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *source);//TODO:交换顺序结果不一致？？？？
+    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun045.ply", *target);
     //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", *target);
     //cout << "/" << endl;
 
