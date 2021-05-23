@@ -14,6 +14,48 @@ void voxelFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, float lx
     voxel_grid.filter(*cloud_filtered);
 }
 
+void visualViewer(PointCloud::Ptr leftCloud, PointCloud::Ptr rightCloud) {
+    // 可视化ICP的过程与结果
+    pcl::visualization::PCLVisualizer viewer("ICPTrans demo");
+    // 创建两个观察视点
+    int v1(0);
+    int v2(1);
+    viewer.createViewPort(0.0, 0.0, 0.5, 1.0, v1);
+    viewer.createViewPort(0.5, 0.0, 1.0, 1.0, v2);
+
+    // 定义显示的颜色信息
+    float bckgr_gray_level = 0.0;  // Black
+    float txt_gray_lvl = 1.0 - bckgr_gray_level;
+
+    // 原始的点云设置为白色的
+    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h(NULL, (int)255 * txt_gray_lvl, (int)255 * txt_gray_lvl,
+        (int)255 * txt_gray_lvl);
+    viewer.addPointCloud(leftCloud, cloud_in_color_h, "origin_joint", v1);//设置原始的点云都是显示为白色
+
+    // ICP配准后的点云为红色
+    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h(NULL, 180, 20, 20);
+    viewer.addPointCloud(rightCloud, cloud_icp_color_h, "result_joint", v2);
+
+    // 加入文本的描述在各自的视口界面
+   //在指定视口viewport=v1添加字符串“white 。。。”其中"icp_info_1"是添加字符串的ID标志，（10，15）为坐标16为字符大小 后面分别是RGB值
+    viewer.addText("Original point clouds", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_1", v1);
+    viewer.addText("ICP aligned joined point clouds", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2", v2);
+
+    // 设置背景颜色
+    viewer.setBackgroundColor(bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v1);
+    viewer.setBackgroundColor(bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v2);
+
+    // 设置相机的坐标和方向
+    viewer.setCameraPosition(-3.68332, 2.94092, 5.71266, 0.289847, 0.921947, -0.256907, 0);
+    viewer.setSize(1280, 1024);  // 可视化窗口的大小
+
+    while (!viewer.wasStopped())
+    {
+        viewer.spinOnce();
+        //boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+    }
+}
+
 int main()
 {
     vector<PointCloud::Ptr> sourceList;
@@ -71,11 +113,11 @@ int main()
     end = clock();
     cout << "read and filter time is: " << float(end - start) / CLOCKS_PER_SEC << endl;
 
-    PointCloud::Ptr result_sac(new PointCloud);
-    PointCloud::Ptr result_icp(new PointCloud);
     *result_joint = *sourceList[0];
     for (int i = 1; i < sourceList.size(); i++)
     {
+        PointCloud::Ptr result_sac(new PointCloud);
+        PointCloud::Ptr result_icp(new PointCloud);
         PointCloud::Ptr source = sourceList[i];
         PointCloud::Ptr target = sourceList[i - 1];
         PointCloud::Ptr source_filtered = source_filteredList[i];
@@ -90,47 +132,10 @@ int main()
 
         ICPTrans(result_sac, target_filtered, source, target, result_icp, 40);
         *result_joint += *result_icp;
+        *sourceList[i] = *result_icp;
+        visualViewer(origin_joint, result_joint);
     }
     
-
-    // 可视化ICP的过程与结果
-    pcl::visualization::PCLVisualizer viewer("ICPTrans demo");
-    // 创建两个观察视点
-    int v1(0);
-    int v2(1);
-    viewer.createViewPort(0.0, 0.0, 0.5, 1.0, v1);
-    viewer.createViewPort(0.5, 0.0, 1.0, 1.0, v2);
-
-    // 定义显示的颜色信息
-    float bckgr_gray_level = 0.0;  // Black
-    float txt_gray_lvl = 1.0 - bckgr_gray_level;
-
-    // 原始的点云设置为白色的
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h(NULL, (int)255 * txt_gray_lvl, (int)255 * txt_gray_lvl,
-        (int)255 * txt_gray_lvl);
-    viewer.addPointCloud(origin_joint, cloud_in_color_h, "origin_joint", v1);//设置原始的点云都是显示为白色
-
-    // ICP配准后的点云为红色
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h(NULL, 180, 20, 20);
-    viewer.addPointCloud(result_joint, cloud_icp_color_h, "result_joint", v2);
-
-    // 加入文本的描述在各自的视口界面
-   //在指定视口viewport=v1添加字符串“white 。。。”其中"icp_info_1"是添加字符串的ID标志，（10，15）为坐标16为字符大小 后面分别是RGB值
-    viewer.addText("Original point clouds", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_1", v1);
-    viewer.addText("ICP aligned joined point clouds", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2", v2);
-
-    // 设置背景颜色
-    viewer.setBackgroundColor(bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v1);
-    viewer.setBackgroundColor(bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v2);
-
-    // 设置相机的坐标和方向
-    viewer.setCameraPosition(-3.68332, 2.94092, 5.71266, 0.289847, 0.921947, -0.256907, 0);
-    viewer.setSize(1280, 1024);  // 可视化窗口的大小
-
-    while (!viewer.wasStopped())
-    {
-        viewer.spinOnce();
-        //boost::this_thread::sleep(boost::posix_time::microseconds(100000));
-    }
+    visualViewer(origin_joint, result_joint);
     return 0;
 }
