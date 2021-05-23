@@ -223,7 +223,7 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
     pcl::transformPointCloud(*source, *sac_ia_result, sac_trans);
     result = sac_ia_result;
     //可视化
-    //visualizeMatch(source, target, sac_ia_result, cru_correspondences);
+    visualizeMatch(source, target, sac_ia_result, cru_correspondences);
     return sac_trans;
 }
 
