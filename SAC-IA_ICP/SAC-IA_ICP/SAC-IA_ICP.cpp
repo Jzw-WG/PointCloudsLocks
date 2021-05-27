@@ -1,4 +1,4 @@
-﻿#include <ICP.h>
+#include <ICP.h>
 #include <iostream>
 #include <SAC-IA.h>
 
@@ -8,6 +8,10 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
 void voxelFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, float lx, float ly, float lz)
 {
+    if (lx == 0 || ly == 0 || lz == 0) {
+        *cloud_filtered = *cloud;
+        return;
+    }
     pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
     voxel_grid.setLeafSize(lx, ly, lz);
     voxel_grid.setInputCloud(cloud);
@@ -35,6 +39,8 @@ int main()
     cout << "原始scene点云数量：" << source->size() << endl;
 
     //滤波
+    //voxelFilter(source, source_filtered, 0, 0, 0);
+    //voxelFilter(target, target_filtered, 0, 0, 0);
     voxelFilter(source, source_filtered, 0.005, 0.005, 0.005);
     voxelFilter(target, target_filtered, 0.005, 0.005, 0.005);
 
