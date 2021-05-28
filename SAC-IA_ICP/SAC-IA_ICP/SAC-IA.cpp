@@ -41,6 +41,7 @@ void est_normals(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, pcl::PointCloud<p
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
     pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
     est_normal.setKSearch(16);         //设置k邻域搜索阈值为20个点
+    //est_normal.setRadiusSearch(0.02);
     est_normal.setInputCloud(cloud_in);   //设置输入模型点云
     est_normal.setSearchMethod(tree);
     if (origin_cloud != NULL) {
@@ -119,7 +120,11 @@ Eigen::Matrix4f FPFHmatch(PointCloud::Ptr source, PointCloud::Ptr target, fpfhFe
     sac_ia.setInputTarget(target);
     sac_ia.setTargetFeatures(target_fpfh);
     PointCloud::Ptr align(new PointCloud);
-    sac_ia.setCorrespondenceRandomness(6); //设置计算协方差时选择多少近邻点，该值越大，协防差越精确，但是计算效率越低.(可省)
+    //sac_ia.setMaxCorrespondenceDistance(0.01);
+    //sac_ia.setRANSACOutlierRejectionThreshold(0.2);
+    //sac_ia.setRANSACIterations(1000);
+    sac_ia.setNumberOfSamples(20);
+    sac_ia.setCorrespondenceRandomness(20); //设置计算协方差时选择多少近邻点，该值越大，协防差越精确，但是计算效率越低.(可省)
     sac_ia.align(*align);
 
     Eigen::Matrix4f sac_trans;
@@ -189,7 +194,7 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
     pcl::PointCloud<pcl::VFHSignature308>::Ptr target_vfh(new pcl::PointCloud<pcl::VFHSignature308>());
 
     //计算法线
-    est_normals(source, source_normals, source_origin);
+    est_normals(source, source_normals, source_origin);//使用源数据计算法线效果提升明显
     est_normals(target, target_normals, target_origin);
 
     ////计算SIFT

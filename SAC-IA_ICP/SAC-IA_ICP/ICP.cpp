@@ -63,7 +63,7 @@ int showICPviewer(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCl
     icp.setMaximumIterations(iterations);    //设置最大迭代次数iterations  // 设置为1以便下次调用
     icp.setInputSource(cloud_icp);   //设置输入的点云
     icp.setInputTarget(cloud_tar);    //目标点云
-    icp.setMaxCorrespondenceDistance(0.005);
+    //icp.setMaxCorrespondenceDistance(0.001);
     icp.align(*cloud_icp);          //匹配后源点云
     std::cout << "Applied " << iterations << " ICP iteration(s) in " << time.toc() << " ms" << std::endl;
 

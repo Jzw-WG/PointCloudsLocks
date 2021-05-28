@@ -1,4 +1,4 @@
-#include <ICP.h>
+﻿#include <ICP.h>
 #include <iostream>
 #include <SAC-IA.h>
 
@@ -27,9 +27,11 @@ int main()
     PointCloud::Ptr target_filtered(new PointCloud);
 
     //加载点云
-    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *source);//TODO:交换顺序结果不一致？？？？
-    pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun045.ply", *target);
-    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", *target);
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *source);//TODO:交换顺序结果不一致？？？？
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun000.ply", *target);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_045-2.ply", *source);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_000-2.ply", *target);
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", *source);
     //cout << "/" << endl;
 
     eraseInfPoint(target);
@@ -41,8 +43,8 @@ int main()
     //滤波
     //voxelFilter(source, source_filtered, 0, 0, 0);
     //voxelFilter(target, target_filtered, 0, 0, 0);
-    voxelFilter(source, source_filtered, 0.005, 0.005, 0.005);
-    voxelFilter(target, target_filtered, 0.005, 0.005, 0.005);
+    voxelFilter(source, source_filtered, 0.01, 0.01, 0.01);
+    voxelFilter(target, target_filtered, 0.01, 0.01, 0.01);
 
     cout << "滤波后model点云数量：" << target_filtered->size() << endl;
     cout << "滤波后scene点云数量：" << source_filtered->size() << endl;
