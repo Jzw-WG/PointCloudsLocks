@@ -1,4 +1,4 @@
-﻿#include <ICP.h>
+#include <ICP.h>
 #include <iostream>
 #include <SAC-IA.h>
 
@@ -16,6 +16,23 @@ void voxelFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, float lx
     voxel_grid.setLeafSize(lx, ly, lz);
     voxel_grid.setInputCloud(cloud);
     voxel_grid.filter(*cloud_filtered);
+}
+
+Eigen::Matrix4f rot_mat(const Eigen::Vector3f& point, const Eigen::Vector3f& vector, const float t)
+{
+    float u = vector(0);
+    float v = vector(1);
+    float w = vector(2);
+    float a = point(0);
+    float b = point(1);
+    float c = point(2);
+
+    Eigen::Matrix4f matrix;
+    matrix << u * u + (v * v + w * w) * cos(t), u* v* (1 - cos(t)) - w * sin(t), u* w* (1 - cos(t)) + v * sin(t), (a * (v * v + w * w) - u * (b * v + c * w))* (1 - cos(t)) + (b * w - c * v) * sin(t),
+        u* v* (1 - cos(t)) + w * sin(t), v* v + (u * u + w * w) * cos(t), v* w* (1 - cos(t)) - u * sin(t), (b * (u * u + w * w) - v * (a * u + c * w))* (1 - cos(t)) + (c * u - a * w) * sin(t),
+        u* w* (1 - cos(t)) - v * sin(t), v* w* (1 - cos(t)) + u * sin(t), w* w + (u * u + v * v) * cos(t), (c * (u * u + v * v) - w * (a * u + b * v))* (1 - cos(t)) + (a * v - b * u) * sin(t),
+        0, 0, 0, 1;
+    return matrix;
 }
 
 int main()
@@ -52,10 +69,18 @@ int main()
     pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
     pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
 
-    Eigen::Matrix4f sac_trans;
-    sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result, source_normals, target_normals);//会提取已计算的法线
+    Eigen::Matrix4f rot_trans;
+    Eigen::Vector3f point(0, 0.1, 0.7);
+    Eigen::Vector3f direction(0, -1, 0);
+    rot_trans = rot_mat(point, direction, M_PI / 4);
+    pcl::transformPointCloud(*source_filtered, *result, rot_trans);
+    pcl::transformPointCloud(*source, *source, rot_trans);
+
+    //Eigen::Matrix4f sac_trans;
+
+    //sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result, source_normals, target_normals);//会提取已计算的法线
     
-    pcl::transformPointCloud(*source, *source, sac_trans);
+    //pcl::transformPointCloud(*source, *source, sac_trans);
 
     showICPviewer(result, target_filtered, source, target);
     return 0;
