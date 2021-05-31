@@ -60,8 +60,8 @@ int main()
     //滤波
     //voxelFilter(source, source_filtered, 0, 0, 0);
     //voxelFilter(target, target_filtered, 0, 0, 0);
-    voxelFilter(source, source_filtered, 0.01, 0.01, 0.01);
-    voxelFilter(target, target_filtered, 0.01, 0.01, 0.01);
+    voxelFilter(source, source_filtered, 0.005, 0.005, 0.005);
+    voxelFilter(target, target_filtered, 0.005, 0.005, 0.005);
 
     cout << "滤波后model点云数量:" << target_filtered->size() << endl;
     cout << "滤波后scene点云数量:" << source_filtered->size() << endl;

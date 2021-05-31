@@ -123,8 +123,8 @@ Eigen::Matrix4f FPFHmatch(PointCloud::Ptr source, PointCloud::Ptr target, fpfhFe
     //sac_ia.setMaxCorrespondenceDistance(0.01);
     //sac_ia.setRANSACOutlierRejectionThreshold(0.2);
     //sac_ia.setRANSACIterations(1000);
-    sac_ia.setNumberOfSamples(20);
-    sac_ia.setCorrespondenceRandomness(20); //设置计算协方差时选择多少近邻点，该值越大，协防差越精确，但是计算效率越低.(可省)
+    //sac_ia.setNumberOfSamples(20);
+    sac_ia.setCorrespondenceRandomness(6); //设置计算协方差时选择多少近邻点，该值越大，协防差越精确，但是计算效率越低.(可省)
     sac_ia.align(*align);
 
     Eigen::Matrix4f sac_trans;
