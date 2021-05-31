@@ -54,8 +54,8 @@ int main()
     eraseInfPoint(target);
     eraseInfPoint(source);
 
-    cout << "原始model点云数量：" << target->size() << endl;
-    cout << "原始scene点云数量：" << source->size() << endl;
+    cout << "原始model点云数量:" << target->size() << endl;
+    cout << "原始scene点云数量:" << source->size() << endl;
 
     //滤波
     //voxelFilter(source, source_filtered, 0, 0, 0);
@@ -63,8 +63,8 @@ int main()
     voxelFilter(source, source_filtered, 0.01, 0.01, 0.01);
     voxelFilter(target, target_filtered, 0.01, 0.01, 0.01);
 
-    cout << "滤波后model点云数量：" << target_filtered->size() << endl;
-    cout << "滤波后scene点云数量：" << source_filtered->size() << endl;
+    cout << "滤波后model点云数量:" << target_filtered->size() << endl;
+    cout << "滤波后scene点云数量:" << source_filtered->size() << endl;
 
     pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
     pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
