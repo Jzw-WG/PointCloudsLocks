@@ -3,7 +3,7 @@
 bool next_iteration = false;
 bool icp_finished = false;
 
-void print4x4Matrix(const Eigen::Matrix4d& matrix)    //打印旋转矩阵和平移矩阵
+void print4x4Matrix(const Eigen::Matrix4f& matrix)    //打印旋转矩阵和平移矩阵
 {
     printf("Rotation matrix :\n");
     printf("    | %6.3f %6.3f %6.3f | \n", matrix(0, 0), matrix(0, 1), matrix(0, 2));
@@ -13,7 +13,7 @@ void print4x4Matrix(const Eigen::Matrix4d& matrix)    //打印旋转矩阵和平
     printf("t = < %6.3f, %6.3f, %6.3f >\n\n", matrix(0, 3), matrix(1, 3), matrix(2, 3));
 }
 
-int ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, PointCloudT::Ptr result, int iterations) // 默认的ICP迭代次数
+Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, PointCloudT::Ptr result, PointCloudT::Ptr result_filtered, int iterations) // 默认的ICP迭代次数
 {
     // 申明点云将要使用的
     PointCloudT::Ptr cloud_tr(new PointCloudT);  // 转换后的点云
@@ -24,7 +24,7 @@ int ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT:
     time.tic();       //time.tic开始  time.toc结束时间
     
     //定义旋转矩阵和平移向量Matrix4d是为4*4的矩阵
-    Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();  //初始化
+    Eigen::Matrix4f transformation_matrix = Eigen::Matrix4f::Identity();  //初始化
 
     //// 旋转矩阵的定义可以参考 ( https://en.wikipedia.org/wiki/Rotation_matrix)
     //double theta = M_PI / 8;  // 旋转的角度用弧度的表示方法
@@ -62,17 +62,17 @@ int ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT:
     {
         std::cout << "\nICP has converged, score is " << icp.getFitnessScore() << std::endl;
         std::cout << "\nICP transformation " << iterations << " : cloud_icp -> cloud_in" << std::endl;
-        transformation_matrix = icp.getFinalTransformation().cast<double>();
+        transformation_matrix = icp.getFinalTransformation();
         pcl::transformPointCloud(*cloud_in_origin, *cloud_icp_origin, transformation_matrix);
         print4x4Matrix(transformation_matrix);
     }
     else
     {
         PCL_ERROR("\nICP has not converged.\n");
-        return (-1);
+        return transformation_matrix;
     }
-
+    *result_filtered = *cloud_icp;
     *result = *cloud_icp_origin;
 
-    return (0);
+    return transformation_matrix;
 }
