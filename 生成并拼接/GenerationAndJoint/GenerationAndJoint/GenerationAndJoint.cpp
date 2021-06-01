@@ -17,6 +17,15 @@ void voxelFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, float lx
     voxel_grid.filter(*cloud_filtered);
 }
 
+void radiusFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, double radius, int neighbors)
+{
+    pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;
+    outrem.setRadiusSearch(radius);
+    outrem.setMinNeighborsInRadius(neighbors);
+    outrem.setInputCloud(cloud);
+    outrem.filter(*cloud_filtered);
+}
+
 void visualViewer(PointCloud::Ptr leftCloud, PointCloud::Ptr rightCloud) {
     // 可视化ICP的过程与结果
     pcl::visualization::PCLVisualizer viewer("ICPTrans demo");
@@ -173,13 +182,12 @@ int main()
         *result_joint_filtered += *result_icp_filtered;
         *sourceList[i] = *result_icp;
         *source_filteredList[i] = *result_icp_filtered;
-        visualViewer(origin_joint, result_joint);
+
+        voxelFilter(result_joint, result_joint, 0.005, 0.005, 0.005);
+        //visualViewer(origin_joint, result_joint);
     }
-    pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;
-    outrem.setInputCloud(result_joint);
-    outrem.setRadiusSearch(0.005);
-    outrem.setMinNeighborsInRadius(25);
-    outrem.filter(*result_joint);
+    radiusFilter(result_joint, result_joint, 0.005, 4);
+    pcl::io::savePLYFile("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", *result_joint);
     visualViewer(origin_joint, result_joint);
     return 0;
 }
