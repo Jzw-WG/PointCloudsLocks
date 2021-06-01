@@ -15,8 +15,6 @@
 #include <pcl/registration/correspondence_estimation.h>
 #include <pcl/registration/correspondence_rejection_features.h> //特征的错误对应关系去除
 #include <pcl/registration/correspondence_rejection_sample_consensus.h> //随机采样一致性去除
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/approximate_voxel_grid.h>
 #include <pcl/keypoints/sift_keypoint.h>   // shift关键点相关
 #include <pcl/features/vfh.h>                     //VFH特征估计类头文件
 

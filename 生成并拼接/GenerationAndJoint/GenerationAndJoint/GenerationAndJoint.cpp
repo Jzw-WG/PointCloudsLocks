@@ -1,6 +1,9 @@
-#include <ICP.h>
+﻿#include <ICP.h>
 #include <iostream>
 #include <SAC-IA.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/approximate_voxel_grid.h>
+#include <pcl/filters/radius_outlier_removal.h>
 
 
 using namespace std;
@@ -172,7 +175,11 @@ int main()
         *source_filteredList[i] = *result_icp_filtered;
         visualViewer(origin_joint, result_joint);
     }
-    
+    pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;
+    outrem.setInputCloud(result_joint);
+    outrem.setRadiusSearch(0.005);
+    outrem.setMinNeighborsInRadius(25);
+    outrem.filter(*result_joint);
     visualViewer(origin_joint, result_joint);
     return 0;
 }
