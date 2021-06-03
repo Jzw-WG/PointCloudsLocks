@@ -1,9 +1,9 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <pcl/point_types.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/statistical_outlier_removal.h>  //ÂË²¨Ïà¹Ø
+#include <pcl/filters/statistical_outlier_removal.h>  //æ»¤æ³¢ç›¸å…³
 #include <pcl/filters/conditional_removal.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -17,18 +17,18 @@
 #include <algorithm>
 #include <ctime>
 #include <pcl/visualization/pcl_plotter.h>
-#include <fstream>//Ğ´Èëtxt
+#include <fstream>//å†™å…¥txt
 #include<string>
-#include <stdlib.h>//½«ÕûĞÍ×ª»»³É×Ö·ûĞÍ
+#include <stdlib.h>//å°†æ•´å‹è½¬æ¢æˆå­—ç¬¦å‹
 #include <pcl/filters/convolution_3d.h>
 #include <pcl/filters/convolution.h>
 #include <pcl/surface/mls.h>
 
-using namespace std;  // ¿ÉÒÔ¼ÓÈë std µÄÃüÃû¿Õ¼ä
-//ÌåËØÂË²¨
-int main(int argc, char** argv) {
+using namespace std;  // å¯ä»¥åŠ å…¥ std çš„å‘½åç©ºé—´
+//ä½“ç´ æ»¤æ³¢
+int voxelFilter(string inputFileName, string outputFileName) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\¹¤¼ş2_Ä£ĞÍ.ply", *cloud) == -1) {
+	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
 		PCL_ERROR("Couldnot read file.\n");
 		system("pause");
 		return(-1);
@@ -37,74 +37,73 @@ int main(int argc, char** argv) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr outputcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 
 	pcl::VoxelGrid<pcl::PointXYZRGB> sor;
-	sor.setInputCloud(cloud);//ÊäÈë
-	sor.setLeafSize(4,4,4);//·Ö±ğÂÊ,Ô½Ğ¡Ô½ÃÜ,²ÎÊı·Ö±ğÊÇxyz
-	sor.filter(*outputcloud);//Êä³ö
+	sor.setInputCloud(cloud);//è¾“å…¥
+	sor.setLeafSize(4,4,4);//åˆ†åˆ«ç‡,è¶Šå°è¶Šå¯†,å‚æ•°åˆ†åˆ«æ˜¯xyz
+	sor.filter(*outputcloud);//è¾“å‡º
 
-	pcl::io::savePLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\ÌåËØÂË²¨Êä³ö_¹¤¼ş2_Ä£ĞÍ_4mm.ply", *outputcloud);
+	pcl::io::savePLYFile(outputFileName, *outputcloud);
+	return 0;
 }
 
-/*
-* ÒÆ¶¯×îĞ¡¶ş³Ë·¨
-int main(int argc, char** argv)
-{// ½«Ò»¸öÊÊµ±ÀàĞÍµÄÊäÈëÎÄ¼ş¼ÓÔØµ½¶ÔÏóPointCloudÖĞ
+//ç§»åŠ¨æœ€å°äºŒä¹˜æ³•
+int movingLeastSquaresFilter(string inputFileName, string outputFileName) {
+	// å°†ä¸€ä¸ªé€‚å½“ç±»å‹çš„è¾“å…¥æ–‡ä»¶åŠ è½½åˆ°å¯¹è±¡PointCloudä¸­
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
-	// ¼ÓÔØbun0.pcdÎÄ¼ş£¬¼ÓÔØµÄÎÄ¼şÔÚ PCLµÄ²âÊÔÊı¾İÖĞÊÇ´æÔÚµÄ 
-	pcl::io::loadPLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\°ë¾¶ÂË²¨Êä³ö30-2-³ÌĞòÊä³ö.ply", *cloud);
-	// ´´½¨Ò»¸öKDÊ÷
+	// åŠ è½½bun0.pcdæ–‡ä»¶ï¼ŒåŠ è½½çš„æ–‡ä»¶åœ¨ PCLçš„æµ‹è¯•æ•°æ®ä¸­æ˜¯å­˜åœ¨çš„ 
+	pcl::io::loadPLYFile(inputFileName, *cloud);
+	// åˆ›å»ºä¸€ä¸ªKDæ ‘
 	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>);
-	// Êä³öÎÄ¼şÖĞÓĞPointNormalÀàĞÍ£¬ÓÃÀ´´æ´¢ÒÆ¶¯×îĞ¡¶ş³Ë·¨Ëã³öµÄ·¨Ïß
+	// è¾“å‡ºæ–‡ä»¶ä¸­æœ‰PointNormalç±»å‹ï¼Œç”¨æ¥å­˜å‚¨ç§»åŠ¨æœ€å°äºŒä¹˜æ³•ç®—å‡ºçš„æ³•çº¿
 	pcl::PointCloud<pcl::PointNormal> mls_points;
-	// ¶¨Òå¶ÔÏó (µÚ¶şÖÖ¶¨ÒåÀàĞÍÊÇÎªÁË´æ´¢·¨Ïß, ¼´Ê¹ÓÃ²»µ½Ò²ĞèÒª¶¨Òå³öÀ´)
+	// å®šä¹‰å¯¹è±¡ (ç¬¬äºŒç§å®šä¹‰ç±»å‹æ˜¯ä¸ºäº†å­˜å‚¨æ³•çº¿, å³ä½¿ç”¨ä¸åˆ°ä¹Ÿéœ€è¦å®šä¹‰å‡ºæ¥)
 	pcl::MovingLeastSquares<pcl::PointXYZRGB, pcl::PointNormal> mls;
 	mls.setComputeNormals(true);
-	//ÉèÖÃ²ÎÊı
+	//è®¾ç½®å‚æ•°
 	mls.setInputCloud(cloud);
 	mls.setPolynomialOrder(true);
 	mls.setSearchMethod(tree);
 	mls.setSearchRadius(4);
-	// ÇúÃæÖØ½¨
+	// æ›²é¢é‡å»º
 	mls.process(mls_points);
-	// ±£´æ½á¹û
-	pcl::io::savePCDFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\test.pcd", mls_points);
+	// ä¿å­˜ç»“æœ
+	//pcl::io::savePCDFile("D:\\ç ”ç©¶ç”Ÿæ¯•ä¸šDOC\\å®éªŒç‚¹äº‘\\test.pcd", mls_points);
 
-	pcl::io::loadPCDFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\test.pcd", *cloud);
-	pcl::io::savePLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\test.ply", *cloud);
+	//pcl::io::loadPCDFile("D:\\ç ”ç©¶ç”Ÿæ¯•ä¸šDOC\\å®éªŒç‚¹äº‘\\test.pcd", *cloud);
+	pcl::io::savePLYFile(outputFileName, *cloud);
+	return 0;
 }
-*/
-/*
-* Ë«±ß
-int main() {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\°ë¾¶ÂË²¨Êä³ö30-2.ply", *cloud) == -1) {
-		PCL_ERROR("Couldnot read file.\n");
-		system("pause");
-		return(-1);
-	}
-	pcl::PointCloud<pcl::PointXYZRGB> outcloud;
-	pcl::BilateralFilter<pcl::PointXYZRGB> bf;
-	pcl::KdTreeFLANN<pcl::PointXYZRGB>::Ptr tree(new pcl::KdTreeFLANN<pcl::PointXYZRGB>);
-	bf.setInputCloud(cloud);
-	bf.setHalfSize(5);
-	bf.setStdDev(0.3);
-	//bf.setSigmaS(5);//ÉèÖÃË«±ßÂË²¨Æ÷ÓÃÓÚ¿Õ¼äÁÚÓò/´°¿ÚµÄ¸ßË¹µÄ±ê×¼Æ«²î
-	//bf.setSigmaR(0.003);//ÉèÖÃ¸ßË¹µÄ±ê×¼Æ«²îÓÃÓÚ¿ØÖÆÏàÁÚÏñËØÓÉÓÚÇ¿¶È²îÒì¶øÏÂ½µ¶àÉÙ£¨ÔÚÎÒÃÇµÄÇé¿öÏÂÎªÉî¶È£©
-	bf.filter(outcloud);
 
-	// ±£´æÂË²¨Êä³öµãÔÆÎÄ¼ş  
-	pcl::io::savePLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\Ë«±ßÂË²¨Êä³ö5-0.3.ply", outcloud);
-	return (0);
-}
-*/
-/*
-* ¸ßË¹
-int main(int argc, char** argv) {
+////åŒè¾¹
+//int bilateralFilter(string inputFileName, string outputFileName) {
+//	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+//	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
+//		PCL_ERROR("Couldnot read file.\n");
+//		system("pause");
+//		return(-1);
+//	}
+//	pcl::PointCloud<pcl::PointXYZRGB> outcloud;
+//	pcl::BilateralFilter<pcl::PointXYZRGB> bf;
+//	pcl::KdTreeFLANN<pcl::PointXYZRGB>::Ptr tree(new pcl::KdTreeFLANN<pcl::PointXYZRGB>);
+//	bf.setInputCloud(cloud);
+//	bf.setHalfSize(5);
+//	bf.setStdDev(0.3);
+//	//bf.setSigmaS(5);//è®¾ç½®åŒè¾¹æ»¤æ³¢å™¨ç”¨äºç©ºé—´é‚»åŸŸ/çª—å£çš„é«˜æ–¯çš„æ ‡å‡†åå·®
+//	//bf.setSigmaR(0.003);//è®¾ç½®é«˜æ–¯çš„æ ‡å‡†åå·®ç”¨äºæ§åˆ¶ç›¸é‚»åƒç´ ç”±äºå¼ºåº¦å·®å¼‚è€Œä¸‹é™å¤šå°‘ï¼ˆåœ¨æˆ‘ä»¬çš„æƒ…å†µä¸‹ä¸ºæ·±åº¦ï¼‰
+//	bf.filter(outcloud);
+//
+//	// ä¿å­˜æ»¤æ³¢è¾“å‡ºç‚¹äº‘æ–‡ä»¶  
+//	pcl::io::savePLYFile(outputFileName, outcloud);
+//	return (0);
+//}
+
+//é«˜æ–¯
+int gaussionFilter(string inputFileName, string outputFileName) {
 	//Create the input and filtered cloud objects
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr inputcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr outputcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 
 	//Read in the input file
-	if (pcl::io::loadPLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\°ë¾¶ÂË²¨Êä³ö30-2.ply", *inputcloud) == -1)
+	if (pcl::io::loadPLYFile(inputFileName, *inputcloud) == -1)
 	{
 		PCL_ERROR("Couldn't read file test_pcd.pcd\n");
 		return(-1);
@@ -112,8 +111,8 @@ int main(int argc, char** argv) {
 
 	//Set up the Gaussian Kernel
 	pcl::filters::GaussianKernel<pcl::PointXYZRGB, pcl::PointXYZRGB>::Ptr kernel(new pcl::filters::GaussianKernel<pcl::PointXYZRGB, pcl::PointXYZRGB>);
-	(*kernel).setSigma(6);
-	(*kernel).setThresholdRelativeToSigma(4);
+	(*kernel).setSigma(1);
+	(*kernel).setThresholdRelativeToSigma(3);
 	std::cout << "Kernel made" << std::endl;
 
 	//Set up the KDTree
@@ -132,14 +131,16 @@ int main(int argc, char** argv) {
 	convolution.convolve(*outputcloud);
 	std::cout << "Convoluted" << std::endl;
 
-	pcl::io::savePLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\¸ßË¹ÂË²¨Êä³ö20-2.ply", *outputcloud);
+	pcl::io::savePLYFile(outputFileName, *outputcloud);
+	return 0;
 }
-*/
-/*
-* ÖĞÖµ
-int main(int argc, char** argv) {
+
+
+
+//ä¸­å€¼
+int mediumnFilter(string inputFileName, string outputFileName) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\°ë¾¶ÂË²¨Êä³ö30-2.ply", *cloud) == -1) {
+	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
 		PCL_ERROR("Couldnot read file.\n");
 		system("pause");
 		return(-1);
@@ -152,47 +153,56 @@ int main(int argc, char** argv) {
 	fbf.setWindowSize(20);
 	fbf.filter(*cloud_out);
 
-	pcl::io::savePLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\ÖĞÖµÂË²¨Êä³ö20-2.ply", *cloud_out);
+	pcl::io::savePLYFile(outputFileName, *cloud_out);
+	return 0;
 }
-*/
 
-
-/*
-int main(int argc, char** argv) {
+//ç»Ÿè®¡
+int statisticalOutlierRemovalFilter(string inputFileName, string outputFileName) {
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filter1(new pcl::PointCloud<pcl::PointXYZRGB>);
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filter2(new pcl::PointCloud<pcl::PointXYZRGB>);
 	
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\Ö±Í¨ÂË²¨ºóµÄµãÔÆ1.ply", *cloud) == -1) {
+	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
 		PCL_ERROR("Couldnot read file.\n");
 		system("pause");
 		return(-1);
 	}
 	
 
-	//Í³¼ÆÂË²¨
+	//ç»Ÿè®¡æ»¤æ³¢
 	pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
 	sor.setInputCloud(cloud);
-	sor.setMeanK(20); //K½üÁÚËÑË÷µã¸öÊı
-	sor.setStddevMulThresh(1.0); //±ê×¼²î±¶Êı
-	sor.setNegative(false); //±£ÁôÎ´ÂË²¨µã£¨ÄÚµã£©
-	sor.filter(*cloud_filter2);  //±£´æÂË²¨½á¹ûµ½cloud_filter
+	sor.setMeanK(30); //Kè¿‘é‚»æœç´¢ç‚¹ä¸ªæ•°
+	sor.setStddevMulThresh(0.1); //æ ‡å‡†å·®å€æ•°
+	sor.setNegative(false); //ä¿ç•™æœªæ»¤æ³¢ç‚¹ï¼ˆå†…ç‚¹ï¼‰
+	sor.filter(*cloud_filter2);  //ä¿å­˜æ»¤æ³¢ç»“æœåˆ°cloud_filter
 
-	pcl::io::savePLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\Í³¼ÆÂË²¨Êä³ö20-1.ply", *cloud_filter2);
-	
-	
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\Í³¼ÆÂË²¨Êä³ö20-2.ply", *cloud_filter2) == -1) {
+	pcl::io::savePLYFile(outputFileName, *cloud_filter2);
+	return 0;
+}
+
+int radiusFilter(string inputFileName, string outputFileName)
+{
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filter1(new pcl::PointCloud<pcl::PointXYZRGB>);
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filter2(new pcl::PointCloud<pcl::PointXYZRGB>);
+	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud_filter2) == -1) {
 		PCL_ERROR("Couldnot read file.\n");
 		system("pause");
 		return(-1);
 	}
-	pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;//´´½¨°ë¾¶ÂË²¨Æ÷¶ÔÏó
-	outrem.setInputCloud(cloud_filter2);			//ÉèÖÃÊäÈëµãÔÆ
-	outrem.setRadiusSearch(2);					//ÉèÖÃ°ë¾¶Îª4cm
-	outrem.setMinNeighborsInRadius(2);				//ÉèÖÃ×îĞ¡ÁÚ½Óµã¸öÊıãĞÖµ,°ë¾¶·¶Î§ÄÚÆäËûµã¸öÊıÉÙÓÚ5µÄµã½«±»ÂË³ı
-	outrem.filter(*cloud_filter1);				//Ö´ĞĞÂË²¨
+	pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;//åˆ›å»ºåŠå¾„æ»¤æ³¢å™¨å¯¹è±¡
+	outrem.setInputCloud(cloud_filter2);			//è®¾ç½®è¾“å…¥ç‚¹äº‘
+	outrem.setRadiusSearch(2);					//è®¾ç½®åŠå¾„ä¸º4cm
+	outrem.setMinNeighborsInRadius(2);				//è®¾ç½®æœ€å°é‚»æ¥ç‚¹ä¸ªæ•°é˜ˆå€¼,åŠå¾„èŒƒå›´å†…å…¶ä»–ç‚¹ä¸ªæ•°å°‘äº5çš„ç‚¹å°†è¢«æ»¤é™¤
+	outrem.filter(*cloud_filter1);				//æ‰§è¡Œæ»¤æ³¢
 
-	pcl::io::savePLYFile("D:\\ÑĞ¾¿Éú±ÏÒµDOC\\ÊµÑéµãÔÆ\\°ë¾¶ÂË²¨Êä³ö20-2.ply", *cloud_filter1);
-	
+	pcl::io::savePLYFile(outputFileName, *cloud_filter1);
+	return 0;
 }
-*/
+
+int main(int argc, char** argv) {
+	string inputFileName = "..\\..\\..\\..\\data\\gen\\handled\\lock_1_090-2.ply";
+	string outputFileName = "..\\..\\..\\..\\data\\gen\\handled\\lock_1_090_statistic.ply";
+	statisticalOutlierRemovalFilter(inputFileName, outputFileName);
+	return 0;
+}
