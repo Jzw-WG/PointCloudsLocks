@@ -1,30 +1,10 @@
-﻿#include <ICP.h>
+#include <ICP.h>
 #include <iostream>
 #include <SAC-IA.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/approximate_voxel_grid.h>
-#include <pcl/filters/radius_outlier_removal.h>
-
+#include <PointCloudFilters.h>
 
 using namespace std;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
-
-void voxelFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, float lx, float ly, float lz)
-{
-    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
-    voxel_grid.setLeafSize(lx, ly, lz);
-    voxel_grid.setInputCloud(cloud);
-    voxel_grid.filter(*cloud_filtered);
-}
-
-void radiusFilter(PointCloud::Ptr cloud, PointCloud::Ptr cloud_filtered, double radius, int neighbors)
-{
-    pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;
-    outrem.setRadiusSearch(radius);
-    outrem.setMinNeighborsInRadius(neighbors);
-    outrem.setInputCloud(cloud);
-    outrem.filter(*cloud_filtered);
-}
 
 void visualViewer(PointCloud::Ptr leftCloud, PointCloud::Ptr rightCloud) {
     // 可视化ICP的过程与结果

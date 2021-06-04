@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>./;$(IncludePath)</IncludePath>
+    <IncludePath>.\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -144,10 +144,12 @@
   <ItemGroup>
     <ClCompile Include="GenerationAndJoint.cpp" />
     <ClCompile Include="ICP.cpp" />
+    <ClCompile Include="PointCloudFilters.cpp" />
     <ClCompile Include="SAC-IA.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ICP.h" />
+    <ClInclude Include="PointCloudFilters.h" />
     <ClInclude Include="SAC-IA.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
