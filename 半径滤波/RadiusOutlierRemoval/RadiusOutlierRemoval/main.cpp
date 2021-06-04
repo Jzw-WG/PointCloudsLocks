@@ -11,7 +11,9 @@
 #include <pcl/filters/fast_bilateral.h>
 #include <pcl/filters/median_filter.h>
 #include <pcl/filters/fast_bilateral_omp.h>
+#include <pcl/filters/passthrough.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/common/common.h>
 #include <boost/thread/thread.hpp>
 #include <vector>
 #include <algorithm>
@@ -25,51 +27,37 @@
 #include <pcl/surface/mls.h>
 
 using namespace std;  // 可以加入 std 的命名空间
+typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 //体素滤波
-int voxelFilter(string inputFileName, string outputFileName) {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
-		PCL_ERROR("Couldnot read file.\n");
-		system("pause");
-		return(-1);
+int voxelFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float lx, float ly, float lz) {
+	if (inputcloud->points.size() == 0) {
+		return -1;
 	}
-
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr outputcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-	pcl::VoxelGrid<pcl::PointXYZRGB> sor;
-	sor.setInputCloud(cloud);//输入
-	sor.setLeafSize(4,4,4);//分别率,越小越密,参数分别是xyz
-	sor.filter(*outputcloud);//输出
-
-	pcl::io::savePLYFile(outputFileName, *outputcloud);
+	pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
+	voxel_grid.setInputCloud(inputcloud);//输入
+	voxel_grid.setLeafSize(lx,ly,lz);//分别率,越小越密,参数分别是xyz
+	voxel_grid.filter(*outputcloud);//输出
 	return 0;
 }
 
 //移动最小二乘法
-int movingLeastSquaresFilter(string inputFileName, string outputFileName) {
-	// 将一个适当类型的输入文件加载到对象PointCloud中
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
-	// 加载bun0.pcd文件，加载的文件在 PCL的测试数据中是存在的 
-	pcl::io::loadPLYFile(inputFileName, *cloud);
+int movingLeastSquaresFilter(PointCloud::Ptr inputcloud, pcl::PointCloud<pcl::PointNormal> mls_points, double radius) {
+	if (inputcloud->points.size() == 0) {
+		return -1;
+	}
 	// 创建一个KD树
-	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>);
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
 	// 输出文件中有PointNormal类型，用来存储移动最小二乘法算出的法线
-	pcl::PointCloud<pcl::PointNormal> mls_points;
 	// 定义对象 (第二种定义类型是为了存储法线, 即使用不到也需要定义出来)
-	pcl::MovingLeastSquares<pcl::PointXYZRGB, pcl::PointNormal> mls;
+	pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
 	mls.setComputeNormals(true);
 	//设置参数
-	mls.setInputCloud(cloud);
+	mls.setInputCloud(inputcloud);
 	mls.setPolynomialOrder(true);
 	mls.setSearchMethod(tree);
-	mls.setSearchRadius(4);
+	mls.setSearchRadius(radius);//4
 	// 曲面重建
 	mls.process(mls_points);
-	// 保存结果
-	//pcl::io::savePCDFile("D:\\研究生毕业DOC\\实验点云\\test.pcd", mls_points);
-
-	//pcl::io::loadPCDFile("D:\\研究生毕业DOC\\实验点云\\test.pcd", *cloud);
-	pcl::io::savePLYFile(outputFileName, *cloud);
 	return 0;
 }
 
@@ -97,112 +85,122 @@ int movingLeastSquaresFilter(string inputFileName, string outputFileName) {
 //}
 
 //高斯
-int gaussionFilter(string inputFileName, string outputFileName) {
-	//Create the input and filtered cloud objects
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr inputcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr outputcloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-	//Read in the input file
-	if (pcl::io::loadPLYFile(inputFileName, *inputcloud) == -1)
-	{
-		PCL_ERROR("Couldn't read file test_pcd.pcd\n");
-		return(-1);
+int gaussionFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double radius) {
+	if (inputcloud->points.size() == 0) {
+		return -1;
 	}
-
 	//Set up the Gaussian Kernel
-	pcl::filters::GaussianKernel<pcl::PointXYZRGB, pcl::PointXYZRGB>::Ptr kernel(new pcl::filters::GaussianKernel<pcl::PointXYZRGB, pcl::PointXYZRGB>);
+	pcl::filters::GaussianKernel<pcl::PointXYZ, pcl::PointXYZ>::Ptr kernel(new pcl::filters::GaussianKernel<pcl::PointXYZ, pcl::PointXYZ>);
 	(*kernel).setSigma(1);
 	(*kernel).setThresholdRelativeToSigma(3);
 	std::cout << "Kernel made" << std::endl;
 
 	//Set up the KDTree
-	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZRGB>);
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
 	(*kdtree).setInputCloud(inputcloud);
 	std::cout << "KdTree made" << std::endl;
 
 	//Set up the Convolution Filter
-	pcl::filters::Convolution3D<pcl::PointXYZRGB, pcl::PointXYZRGB, pcl::filters::GaussianKernel<pcl::PointXYZRGB, pcl::PointXYZRGB>> convolution;
+	pcl::filters::Convolution3D<pcl::PointXYZ, pcl::PointXYZ, pcl::filters::GaussianKernel<pcl::PointXYZ, pcl::PointXYZ>> convolution;
 	convolution.setKernel(*kernel);
 	convolution.setInputCloud(inputcloud);
 	convolution.setSearchMethod(kdtree);
-	convolution.setRadiusSearch(20);
+	convolution.setRadiusSearch(radius);//20
 	std::cout << "Convolution Start" << std::endl;
 
 	convolution.convolve(*outputcloud);
 	std::cout << "Convoluted" << std::endl;
-
-	pcl::io::savePLYFile(outputFileName, *outputcloud);
 	return 0;
 }
 
 
 
 //中值
-int mediumnFilter(string inputFileName, string outputFileName) {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
-		PCL_ERROR("Couldnot read file.\n");
-		system("pause");
-		return(-1);
+int mediumnFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float max_allow, int win_size) {
+	if (inputcloud->points.size() == 0) {
+		return -1;
 	}
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-	pcl::MedianFilter<pcl::PointXYZRGB> fbf;
-	fbf.setInputCloud(cloud);
-	fbf.setMaxAllowedMovement(0.5);
-	fbf.setWindowSize(20);
-	fbf.filter(*cloud_out);
-
-	pcl::io::savePLYFile(outputFileName, *cloud_out);
+	pcl::MedianFilter<pcl::PointXYZ> fbf;
+	fbf.setInputCloud(inputcloud);
+	fbf.setMaxAllowedMovement(max_allow);//0.5
+	fbf.setWindowSize(win_size);//20
+	fbf.filter(*outputcloud);
 	return 0;
 }
 
 //统计
-int statisticalOutlierRemovalFilter(string inputFileName, string outputFileName) {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filter2(new pcl::PointCloud<pcl::PointXYZRGB>);
-	
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
-		PCL_ERROR("Couldnot read file.\n");
-		system("pause");
-		return(-1);
+int statisticalOutlierRemovalFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, int nr_k, double stddev_mult, bool nagetive = false) {
+	if (inputcloud->points.size() == 0) {
+		return -1;
 	}
-	
-
 	//统计滤波
-	pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> sor;
-	sor.setInputCloud(cloud);
-	sor.setMeanK(30); //K近邻搜索点个数
-	sor.setStddevMulThresh(0.1); //标准差倍数
-	sor.setNegative(false); //保留未滤波点（内点）
-	sor.filter(*cloud_filter2);  //保存滤波结果到cloud_filter
-
-	pcl::io::savePLYFile(outputFileName, *cloud_filter2);
+	pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+	sor.setInputCloud(inputcloud);
+	sor.setMeanK(nr_k); //K近邻搜索点个数 20
+	sor.setStddevMulThresh(stddev_mult); //标准差倍数 0.1
+	sor.setNegative(nagetive); //保留未滤波点（内点）
+	sor.filter(*outputcloud);  //保存滤波结果到cloud_filter
 	return 0;
 }
 
-int radiusFilter(string inputFileName, string outputFileName)
+int radiusFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double radius, int min_pts)
 {
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filter1(new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filter2(new pcl::PointCloud<pcl::PointXYZRGB>);
-	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud_filter2) == -1) {
-		PCL_ERROR("Couldnot read file.\n");
-		system("pause");
-		return(-1);
+	if (inputcloud->points.size() == 0) {
+		return -1;
 	}
-	pcl::RadiusOutlierRemoval<pcl::PointXYZRGB> outrem;//创建半径滤波器对象
-	outrem.setInputCloud(cloud_filter2);			//设置输入点云
-	outrem.setRadiusSearch(2);					//设置半径为4cm
-	outrem.setMinNeighborsInRadius(2);				//设置最小邻接点个数阈值,半径范围内其他点个数少于5的点将被滤除
-	outrem.filter(*cloud_filter1);				//执行滤波
+	pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;//创建半径滤波器对象
+	outrem.setInputCloud(inputcloud);			//设置输入点云
+	outrem.setRadiusSearch(radius);					//设置半径为4cm
+	//outrem.setMinNeighborsInRadius(min_pts);				//设置最小邻接点个数阈值,半径范围内其他点个数少于5的点将被滤除
+	outrem.filter(*outputcloud);				//执行滤波
+	return 0;
+}
 
-	pcl::io::savePLYFile(outputFileName, *cloud_filter1);
+int pathThroughFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, string field, float limit_min, float limit_max)
+{
+	if (inputcloud->points.size() == 0) {
+		return -1;
+	}
+	cout << "there are " << inputcloud->points.size() << " points before filtering." << endl;
+
+	////2.取得点云坐标极值,写在函数外
+	//pcl::PointXYZ minPt, maxPt;
+	//pcl::getMinMax3D(*inputcloud, minPt, maxPt);
+
+	//3.直通滤波
+	pcl::PassThrough<pcl::PointXYZ> pass;     //创建滤波器对象
+	pass.setInputCloud(inputcloud);                //设置待滤波的点云
+	pass.setFilterFieldName(field);             //设置在Z轴方向上进行滤波 "x" "y" "z"
+	pass.setFilterLimits(limit_min, limit_max);    //设置滤波范围(从最高点向下12米去除)
+	//pass.setFilterFieldName("y");             //设置在Z轴方向上进行滤波
+	//pass.setFilterLimits(0, 0.3);    //设置滤波范围(从最高点向下12米去除)
+	pass.setFilterLimitsNegative(false);      //保留
+	pass.filter(*outputcloud);               //滤波并存储
+	cout << "there are " << outputcloud->points.size() << " points after filtering." << endl;
 	return 0;
 }
 
 int main(int argc, char** argv) {
-	string inputFileName = "..\\..\\..\\..\\data\\gen\\handled\\lock_1_090-2.ply";
-	string outputFileName = "..\\..\\..\\..\\data\\gen\\handled\\lock_1_090_statistic.ply";
-	statisticalOutlierRemovalFilter(inputFileName, outputFileName);
+	string inputFileName = "..\\..\\..\\..\\data\\gen\\lock_1_000.ply";
+	string outputFileName = "..\\..\\..\\..\\data\\gen\\handled\\lock_1_000_pass.ply";
+	PointCloud::Ptr inputcloud(new PointCloud);
+	PointCloud::Ptr outputcloud(new PointCloud);
+	if (pcl::io::loadPLYFile<pcl::PointXYZ>(inputFileName, *inputcloud) == -1) {
+		PCL_ERROR("Couldnot read file.\n");
+		system("pause");
+		return(-1);
+	}
+
+	pcl::PointXYZ minPt, maxPt;
+	pcl::getMinMax3D(*inputcloud, minPt, maxPt);
+
+	//statisticalOutlierRemovalFilter(inputFileName, outputFileName);
+	pathThroughFilter(inputcloud, outputcloud, "x", -0.16, 0.16);
+	pathThroughFilter(outputcloud, outputcloud, "y", maxPt.y - 0.06 - 0.3, maxPt.y - 0.06);
+	pathThroughFilter(outputcloud, outputcloud, "z", 0.6, 0.9 - 0.15);
+	
+	statisticalOutlierRemovalFilter(outputcloud, outputcloud, 20, 0.2);
+
+	pcl::io::savePLYFile(outputFileName, *outputcloud);
 	return 0;
 }
