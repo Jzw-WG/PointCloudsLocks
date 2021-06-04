@@ -57,14 +57,14 @@ int movingLeastSquaresFilter(PointCloud::Ptr inputcloud, pcl::PointCloud<pcl::Po
 //}
 
 //高斯
-int gaussionFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double radius) {
+int gaussionFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float sigma, float sigma_coefficient, double radius) {
 	if (inputcloud->points.size() == 0) {
 		return -1;
 	}
 	//Set up the Gaussian Kernel
 	pcl::filters::GaussianKernel<pcl::PointXYZ, pcl::PointXYZ>::Ptr kernel(new pcl::filters::GaussianKernel<pcl::PointXYZ, pcl::PointXYZ>);
-	(*kernel).setSigma(1);
-	(*kernel).setThresholdRelativeToSigma(3);
+	(*kernel).setSigma(sigma);//1
+	(*kernel).setThresholdRelativeToSigma(sigma_coefficient);//3
 	std::cout << "Kernel made" << std::endl;
 
 	//Set up the KDTree

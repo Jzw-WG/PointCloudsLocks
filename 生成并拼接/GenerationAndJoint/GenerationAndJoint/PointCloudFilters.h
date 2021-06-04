@@ -27,7 +27,7 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
 int voxelFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float lx, float ly, float lz);
 int movingLeastSquaresFilter(PointCloud::Ptr inputcloud, pcl::PointCloud<pcl::PointNormal> mls_points, double radius);
-int gaussionFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double radius);
+int gaussionFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float sigma, float sigma_coefficient, double radius);
 int mediumnFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float max_allow, int win_size);
 int statisticalOutlierRemovalFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, int nr_k, double stddev_mult, bool nagetive = false);
 int radiusFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double radius, int min_pts);
