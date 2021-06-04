@@ -46,8 +46,12 @@ int main()
     //加载点云
     //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *source);//TODO:交换顺序结果不一致？？？？
     //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun000.ply", *target);
-    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_090-3.ply", *source);
-    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_135-3.ply", *target);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_315_statistic.ply", *source);
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_270_statistic.ply", *target);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\model\\lock_1_model.ply", *target);
+
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\pointcloud-11-18\\LOCK1\\lock_1_000-1-zrh.ply", *source);
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\pointcloud-11-18\\LOCK1\\D2.ply", *target);
     //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", *source);
     //cout << "/" << endl;
 
@@ -69,18 +73,16 @@ int main()
     pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
     pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
 
-    Eigen::Matrix4f rot_trans;
-    Eigen::Vector3f point(0, 0.1, 0.7);//根据具体模型位置设置，当前为手动测量值大致值，后续可能通过点云计算
-    Eigen::Vector3f direction(0, -1, 0);//同上，交换源和目标顺序需要改变旋转方向
-    rot_trans = rot_mat(point, direction, M_PI / 4);
-    pcl::transformPointCloud(*source, *source, rot_trans);
-    pcl::transformPointCloud(*source_filtered, *result, rot_trans);
+    //Eigen::Matrix4f rot_trans;
+    //Eigen::Vector3f point(0, 0.1, 0.7);//根据具体模型位置设置，当前为手动测量值大致值，后续可能通过点云计算
+    //Eigen::Vector3f direction(0, 1, 0);//同上，交换源和目标顺序需要改变旋转方向
+    //rot_trans = rot_mat(point, direction, M_PI / 4);
+    //pcl::transformPointCloud(*source, *source, rot_trans);
+    //pcl::transformPointCloud(*source_filtered, *result, rot_trans);
 
-    //Eigen::Matrix4f sac_trans;
-
-    //sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result, source_normals, target_normals);//会提取已计算的法线
-    
-    //pcl::transformPointCloud(*source, *source, sac_trans);
+    Eigen::Matrix4f sac_trans;
+    sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result, source_normals, target_normals);//会提取已计算的法线
+    pcl::transformPointCloud(*source, *source, sac_trans);
 
     showICPviewer(result, target_filtered, source, target);
     return 0;
