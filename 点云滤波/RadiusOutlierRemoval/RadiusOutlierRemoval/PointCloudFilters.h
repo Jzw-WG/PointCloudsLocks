@@ -1,6 +1,6 @@
-#pragma once
+ï»¿#pragma once
 #include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/filters/statistical_outlier_removal.h>  //ÂË²¨Ïà¹Ø
+#include <pcl/filters/statistical_outlier_removal.h>  //æ»¤æ³¢ç›¸å…³
 #include <pcl/filters/conditional_removal.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -20,9 +20,9 @@
 #include <pcl/filters/convolution.h>
 #include <pcl/surface/mls.h>
 #include <pcl/point_types.h>
-#include <stdlib.h>//½«ÕûĞÍ×ª»»³É×Ö·ûĞÍ
+#include <stdlib.h>//å°†æ•´å‹è½¬æ¢æˆå­—ç¬¦å‹
 
-using namespace std;  // ¿ÉÒÔ¼ÓÈë std µÄÃüÃû¿Õ¼ä
+using namespace std;  // å¯ä»¥åŠ å…¥ std çš„å‘½åç©ºé—´
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
 int voxelFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float lx, float ly, float lz);

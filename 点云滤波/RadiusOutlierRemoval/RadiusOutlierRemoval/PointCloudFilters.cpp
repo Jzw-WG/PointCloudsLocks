@@ -1,39 +1,39 @@
-#include <PointCloudFilters.h>
+ï»¿#include <PointCloudFilters.h>
 
-//ÌåËØÂË²¨
+//ä½“ç´ æ»¤æ³¢
 int voxelFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float lx, float ly, float lz) {
 	if (inputcloud->points.size() == 0) {
 		return -1;
 	}
 	pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
-	voxel_grid.setInputCloud(inputcloud);//ÊäÈë
-	voxel_grid.setLeafSize(lx, ly, lz);//·Ö±ğÂÊ,Ô½Ğ¡Ô½ÃÜ,²ÎÊı·Ö±ğÊÇxyz
-	voxel_grid.filter(*outputcloud);//Êä³ö
+	voxel_grid.setInputCloud(inputcloud);//è¾“å…¥
+	voxel_grid.setLeafSize(lx, ly, lz);//åˆ†åˆ«ç‡,è¶Šå°è¶Šå¯†,å‚æ•°åˆ†åˆ«æ˜¯xyz
+	voxel_grid.filter(*outputcloud);//è¾“å‡º
 	return 0;
 }
 
-//ÒÆ¶¯×îĞ¡¶ş³Ë·¨
+//ç§»åŠ¨æœ€å°äºŒä¹˜æ³•
 int movingLeastSquaresFilter(PointCloud::Ptr inputcloud, pcl::PointCloud<pcl::PointNormal> mls_points, double radius) {
 	if (inputcloud->points.size() == 0) {
 		return -1;
 	}
-	// ´´½¨Ò»¸öKDÊ÷
+	// åˆ›å»ºä¸€ä¸ªKDæ ‘
 	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
-	// Êä³öÎÄ¼şÖĞÓĞPointNormalÀàĞÍ£¬ÓÃÀ´´æ´¢ÒÆ¶¯×îĞ¡¶ş³Ë·¨Ëã³öµÄ·¨Ïß
-	// ¶¨Òå¶ÔÏó (µÚ¶şÖÖ¶¨ÒåÀàĞÍÊÇÎªÁË´æ´¢·¨Ïß, ¼´Ê¹ÓÃ²»µ½Ò²ĞèÒª¶¨Òå³öÀ´)
+	// è¾“å‡ºæ–‡ä»¶ä¸­æœ‰PointNormalç±»å‹ï¼Œç”¨æ¥å­˜å‚¨ç§»åŠ¨æœ€å°äºŒä¹˜æ³•ç®—å‡ºçš„æ³•çº¿
+	// å®šä¹‰å¯¹è±¡ (ç¬¬äºŒç§å®šä¹‰ç±»å‹æ˜¯ä¸ºäº†å­˜å‚¨æ³•çº¿, å³ä½¿ç”¨ä¸åˆ°ä¹Ÿéœ€è¦å®šä¹‰å‡ºæ¥)
 	pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
 	mls.setComputeNormals(true);
-	//ÉèÖÃ²ÎÊı
+	//è®¾ç½®å‚æ•°
 	mls.setInputCloud(inputcloud);
 	mls.setPolynomialOrder(true);
 	mls.setSearchMethod(tree);
 	mls.setSearchRadius(radius);//4
-	// ÇúÃæÖØ½¨
+	// æ›²é¢é‡å»º
 	mls.process(mls_points);
 	return 0;
 }
 
-////Ë«±ß
+////åŒè¾¹
 //int bilateralFilter(string inputFileName, string outputFileName) {
 //	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 //	if (pcl::io::loadPLYFile<pcl::PointXYZRGB>(inputFileName, *cloud) == -1) {
@@ -47,16 +47,16 @@ int movingLeastSquaresFilter(PointCloud::Ptr inputcloud, pcl::PointCloud<pcl::Po
 //	bf.setInputCloud(cloud);
 //	bf.setHalfSize(5);
 //	bf.setStdDev(0.3);
-//	//bf.setSigmaS(5);//ÉèÖÃË«±ßÂË²¨Æ÷ÓÃÓÚ¿Õ¼äÁÚÓò/´°¿ÚµÄ¸ßË¹µÄ±ê×¼Æ«²î
-//	//bf.setSigmaR(0.003);//ÉèÖÃ¸ßË¹µÄ±ê×¼Æ«²îÓÃÓÚ¿ØÖÆÏàÁÚÏñËØÓÉÓÚÇ¿¶È²îÒì¶øÏÂ½µ¶àÉÙ£¨ÔÚÎÒÃÇµÄÇé¿öÏÂÎªÉî¶È£©
+//	//bf.setSigmaS(5);//è®¾ç½®åŒè¾¹æ»¤æ³¢å™¨ç”¨äºç©ºé—´é‚»åŸŸ/çª—å£çš„é«˜æ–¯çš„æ ‡å‡†åå·®
+//	//bf.setSigmaR(0.003);//è®¾ç½®é«˜æ–¯çš„æ ‡å‡†åå·®ç”¨äºæ§åˆ¶ç›¸é‚»åƒç´ ç”±äºå¼ºåº¦å·®å¼‚è€Œä¸‹é™å¤šå°‘ï¼ˆåœ¨æˆ‘ä»¬çš„æƒ…å†µä¸‹ä¸ºæ·±åº¦ï¼‰
 //	bf.filter(outcloud);
 //
-//	// ±£´æÂË²¨Êä³öµãÔÆÎÄ¼ş  
+//	// ä¿å­˜æ»¤æ³¢è¾“å‡ºç‚¹äº‘æ–‡ä»¶  
 //	pcl::io::savePLYFile(outputFileName, outcloud);
 //	return (0);
 //}
 
-//¸ßË¹
+//é«˜æ–¯
 int gaussionFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double radius) {
 	if (inputcloud->points.size() == 0) {
 		return -1;
@@ -87,7 +87,7 @@ int gaussionFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, doub
 
 
 
-//ÖĞÖµ
+//ä¸­å€¼
 int mediumnFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float max_allow, int win_size) {
 	if (inputcloud->points.size() == 0) {
 		return -1;
@@ -100,18 +100,18 @@ int mediumnFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float
 	return 0;
 }
 
-//Í³¼Æ
+//ç»Ÿè®¡
 int statisticalOutlierRemovalFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, int nr_k, double stddev_mult, bool nagetive) {
 	if (inputcloud->points.size() == 0) {
 		return -1;
 	}
-	//Í³¼ÆÂË²¨
+	//ç»Ÿè®¡æ»¤æ³¢
 	pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
 	sor.setInputCloud(inputcloud);
-	sor.setMeanK(nr_k); //K½üÁÚËÑË÷µã¸öÊı 20
-	sor.setStddevMulThresh(stddev_mult); //±ê×¼²î±¶Êı 0.1
-	sor.setNegative(nagetive); //±£ÁôÎ´ÂË²¨µã£¨ÄÚµã£©
-	sor.filter(*outputcloud);  //±£´æÂË²¨½á¹ûµ½cloud_filter
+	sor.setMeanK(nr_k); //Kè¿‘é‚»æœç´¢ç‚¹ä¸ªæ•° 20
+	sor.setStddevMulThresh(stddev_mult); //æ ‡å‡†å·®å€æ•° 0.1
+	sor.setNegative(nagetive); //ä¿ç•™æœªæ»¤æ³¢ç‚¹ï¼ˆå†…ç‚¹ï¼‰
+	sor.filter(*outputcloud);  //ä¿å­˜æ»¤æ³¢ç»“æœåˆ°cloud_filter
 	return 0;
 }
 
@@ -120,11 +120,11 @@ int radiusFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double
 	if (inputcloud->points.size() == 0) {
 		return -1;
 	}
-	pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;//´´½¨°ë¾¶ÂË²¨Æ÷¶ÔÏó
-	outrem.setInputCloud(inputcloud);			//ÉèÖÃÊäÈëµãÔÆ
-	outrem.setRadiusSearch(radius);					//ÉèÖÃ°ë¾¶Îª4cm
-	//outrem.setMinNeighborsInRadius(min_pts);				//ÉèÖÃ×îĞ¡ÁÚ½Óµã¸öÊıãĞÖµ,°ë¾¶·¶Î§ÄÚÆäËûµã¸öÊıÉÙÓÚ5µÄµã½«±»ÂË³ı
-	outrem.filter(*outputcloud);				//Ö´ĞĞÂË²¨
+	pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;//åˆ›å»ºåŠå¾„æ»¤æ³¢å™¨å¯¹è±¡
+	outrem.setInputCloud(inputcloud);			//è®¾ç½®è¾“å…¥ç‚¹äº‘
+	outrem.setRadiusSearch(radius);					//è®¾ç½®åŠå¾„ä¸º4cm
+	//outrem.setMinNeighborsInRadius(min_pts);				//è®¾ç½®æœ€å°é‚»æ¥ç‚¹ä¸ªæ•°é˜ˆå€¼,åŠå¾„èŒƒå›´å†…å…¶ä»–ç‚¹ä¸ªæ•°å°‘äº5çš„ç‚¹å°†è¢«æ»¤é™¤
+	outrem.filter(*outputcloud);				//æ‰§è¡Œæ»¤æ³¢
 	return 0;
 }
 
@@ -135,19 +135,17 @@ int pathThroughFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, s
 	}
 	cout << "there are " << inputcloud->points.size() << " points before filtering." << endl;
 
-	////2.È¡µÃµãÔÆ×ø±ê¼«Öµ,Ğ´ÔÚº¯ÊıÍâ
+	////2.å–å¾—ç‚¹äº‘åæ ‡æå€¼,å†™åœ¨å‡½æ•°å¤–
 	//pcl::PointXYZ minPt, maxPt;
 	//pcl::getMinMax3D(*inputcloud, minPt, maxPt);
 
-	//3.Ö±Í¨ÂË²¨
-	pcl::PassThrough<pcl::PointXYZ> pass;     //´´½¨ÂË²¨Æ÷¶ÔÏó
-	pass.setInputCloud(inputcloud);                //ÉèÖÃ´ıÂË²¨µÄµãÔÆ
-	pass.setFilterFieldName(field);             //ÉèÖÃÔÚZÖá·½ÏòÉÏ½øĞĞÂË²¨ "x" "y" "z"
-	pass.setFilterLimits(limit_min, limit_max);    //ÉèÖÃÂË²¨·¶Î§(´Ó×î¸ßµãÏòÏÂ12Ã×È¥³ı)
-	//pass.setFilterFieldName("y");             //ÉèÖÃÔÚZÖá·½ÏòÉÏ½øĞĞÂË²¨
-	//pass.setFilterLimits(0, 0.3);    //ÉèÖÃÂË²¨·¶Î§(´Ó×î¸ßµãÏòÏÂ12Ã×È¥³ı)
-	pass.setFilterLimitsNegative(false);      //±£Áô
-	pass.filter(*outputcloud);               //ÂË²¨²¢´æ´¢
+	//3.ç›´é€šæ»¤æ³¢
+	pcl::PassThrough<pcl::PointXYZ> pass;     //åˆ›å»ºæ»¤æ³¢å™¨å¯¹è±¡
+	pass.setInputCloud(inputcloud);                //è®¾ç½®å¾…æ»¤æ³¢çš„ç‚¹äº‘
+	pass.setFilterFieldName(field);             //è®¾ç½®åœ¨Zè½´æ–¹å‘ä¸Šè¿›è¡Œæ»¤æ³¢ "x" "y" "z"
+	pass.setFilterLimits(limit_min, limit_max);    //è®¾ç½®æ»¤æ³¢èŒƒå›´(ä»æœ€é«˜ç‚¹å‘ä¸‹12ç±³å»é™¤)
+	pass.setFilterLimitsNegative(false);      //ä¿ç•™
+	pass.filter(*outputcloud);               //æ»¤æ³¢å¹¶å­˜å‚¨
 	cout << "there are " << outputcloud->points.size() << " points after filtering." << endl;
 	return 0;
 }
