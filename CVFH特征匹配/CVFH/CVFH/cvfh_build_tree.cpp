@@ -1,77 +1,65 @@
-//#include <vtkAutoInit.h>//¿ÉÊÓ»¯Ê±ĞèÒªÊ¹ÓÃvtk
-//VTK_MODULE_INIT(vtkRenderingOpenGL2);
-//VTK_MODULE_INIT(vtkInteractionStyle);
-//#include <pcl/point_types.h>
-//#include <pcl/point_cloud.h>
-//#include <pcl/console/parse.h>
-//#include <pcl/console/print.h>
-//#include <pcl/io/pcd_io.h>
-//#include <boost/filesystem.hpp>
-//#include <flann/flann.h>
-//#include <flann/io/hdf5.h>
-//#include <fstream>
-//
-//typedef std::pair<std::string, std::vector<float> > cvfh_model;//Ò»¸öÓÃÓÚ´æ´¢Ãû³Æ£¬Ò»¸öÓÃÓÚ´æ´¢vrfÌØÕ÷
-//using namespace std;
-//
-////¸ù¾İvfhÌØÕ÷Êı¾İ£¬Éú³Ékd_tree£¬¼´½¨Á¢Ä£°å¿â
-////ÆäÖĞvfhDataÎÄ¼ş¼ĞÏÂµÄ.pcdÎÄ¼ş´¢´æÁËvfhÌØÕ÷ºÍxyz¸ñÊ½µÄÄ£°åµãÔÆÊı¾İ
-//int main(int argc, char** argv)
-//{
-//	//¼ÓÔØvfhÌØÕ÷
-//	std::vector<cvfh_model> models;
-//	for (int i = 0; i < 6; i++)
-//	{
-//		//¶ÁÈ¡vfhÌØÕ÷
-//		std::stringstream ss;
-//		ss << "modelData\\model_cvfh_" << i << ".pcd";
-//		cvfh_model cvfh;//´æ´¢Ãû³ÆºÍvfhÌØÕ÷
-//		int cvfh_idx = 1;
-//		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
-//		pcl::io::loadPCDFile<pcl::VFHSignature308>(ss.str(), cvfhs);
-//		cvfh.second.resize(308);
-//
-//		//½«vfhĞÅÏ¢´æÈëvectorÈİÆ÷
-//		std::stringstream ss1;
-//		ss1 << "model_" << i;
-//		cvfh.first = ss1.str();
-//		for (size_t j = 0; j < 308; j++)
-//		{
-//			cvfh.second[j] = cvfhs.points[0].histogram[j];
-//		}
-//		models.push_back(cvfh);
-//	}
-//
-//	//ÑµÁ·Êı¾İ
-//	std::string kdtree_idx_file_name = "kdtree.idx";
-//	std::string training_data_h5_file_name = "training_data.h5";
-//	std::string training_data_list_file_name = "training_data.list";
-//	pcl::console::print_highlight("Loaded %d VFH models. Creating training data %s/%s.\n", (int)models.size(), training_data_h5_file_name.c_str(), training_data_list_file_name.c_str());
-//
-//	//×ª»¯Êı¾İÎªFLANN¸ñÊ½
-//	flann::Matrix<float> data(new float[models.size() * models[0].second.size()], models.size(), models[0].second.size());
-//	for (size_t i = 0; i < data.rows; ++i)
-//		for (size_t j = 0; j < data.cols; ++j)
-//			data[i][j] = models[i].second[j];
-//	//cout << data.rows << endl;
-//	//cout << data.cols << endl;
-//	cout << models.size() << endl;
-//	//±£´æÊı¾İµ½´ÅÅÌ
-//	flann::save_to_file(data, training_data_h5_file_name, "training_data");
-//	std::ofstream fs;
-//	fs.open(training_data_list_file_name.c_str());
-//	for (size_t i = 0; i < models.size(); ++i)
-//		fs << models[i].first << "\n";
-//	fs.close();
-//
-//	//½¨Á¢Ê÷µÄË÷Òı²¢½«Æä´æ´¢ÔÚ´ÅÅÌÉÏ
-//	pcl::console::print_error("Building the kdtree index (%s) for %d elements...\n", kdtree_idx_file_name.c_str(), (int)data.rows);
-//	flann::Index<flann::ChiSquareDistance<float> > index(data, flann::LinearIndexParams());
-//	//flann::Index<flann::ChiSquareDistance<float> > index (data, flann::KDTreeIndexParams (4));
-//	index.buildIndex();
-//	index.save(kdtree_idx_file_name);
-//	delete[] data.ptr();
-//
-//	system("pause");
-//	return 0;
-//}
+ï»¿#include <cvfh_build_tree.h>
+
+using namespace std;
+
+//æ ¹æ®vfhç‰¹å¾æ•°æ®ï¼Œç”Ÿæˆkd_treeï¼Œå³å»ºç«‹æ¨¡æ¿åº“
+//å…¶ä¸­vfhDataæ–‡ä»¶å¤¹ä¸‹çš„.pcdæ–‡ä»¶å‚¨å­˜äº†vfhç‰¹å¾å’Œxyzæ ¼å¼çš„æ¨¡æ¿ç‚¹äº‘æ•°æ®
+int build()
+{
+	//åŠ è½½vfhç‰¹å¾
+	std::vector<cvfh_model> models;
+	for (int i = 0; i < 6; i++)
+	{
+		//è¯»å–vfhç‰¹å¾
+		std::stringstream ss;
+		ss << "..\\..\\..\\..\\data\\gen\\model\\lock_" << i << "_cvfh_model.ply";
+		cvfh_model cvfh;//å­˜å‚¨åç§°å’Œvfhç‰¹å¾
+		int cvfh_idx = 1;
+		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
+		pcl::io::loadPLYFile<pcl::VFHSignature308>(ss.str(), cvfhs);
+		cvfh.second.resize(308);
+
+		//å°†vfhä¿¡æ¯å­˜å…¥vectorå®¹å™¨
+		std::stringstream ss1;
+		ss1 << "model_" << i;
+		cvfh.first = ss1.str();
+		for (size_t j = 0; j < 308; j++)
+		{
+			cvfh.second[j] = cvfhs.points[0].histogram[j];
+		}
+		models.push_back(cvfh);
+	}
+
+	//è®­ç»ƒæ•°æ®
+	std::string kdtree_idx_file_name = "kdtree.idx";
+	std::string training_data_h5_file_name = "training_data.h5";
+	std::string training_data_list_file_name = "training_data.list";
+	pcl::console::print_highlight("Loaded %d VFH models. Creating training data %s/%s.\n", (int)models.size(), training_data_h5_file_name.c_str(), training_data_list_file_name.c_str());
+
+	//è½¬åŒ–æ•°æ®ä¸ºFLANNæ ¼å¼
+	flann::Matrix<float> data(new float[models.size() * models[0].second.size()], models.size(), models[0].second.size());
+	for (size_t i = 0; i < data.rows; ++i)
+		for (size_t j = 0; j < data.cols; ++j)
+			data[i][j] = models[i].second[j];
+	//cout << data.rows << endl;
+	//cout << data.cols << endl;
+	cout << models.size() << endl;
+	//ä¿å­˜æ•°æ®åˆ°ç£ç›˜
+	flann::save_to_file(data, training_data_h5_file_name, "training_data");
+	std::ofstream fs;
+	fs.open(training_data_list_file_name.c_str());
+	for (size_t i = 0; i < models.size(); ++i)
+		fs << models[i].first << "\n";
+	fs.close();
+
+	//å»ºç«‹æ ‘çš„ç´¢å¼•å¹¶å°†å…¶å­˜å‚¨åœ¨ç£ç›˜ä¸Š
+	pcl::console::print_error("Building the kdtree index (%s) for %d elements...\n", kdtree_idx_file_name.c_str(), (int)data.rows);
+	flann::Index<flann::ChiSquareDistance<float> > index(data, flann::LinearIndexParams());
+	//flann::Index<flann::ChiSquareDistance<float> > index (data, flann::KDTreeIndexParams (4));
+	index.buildIndex();
+	index.save(kdtree_idx_file_name);
+	delete[] data.ptr();
+
+	system("pause");
+	return 0;
+}

@@ -1,4 +1,4 @@
-//#include <vtkVersion.h>
+ï»¿//#include <vtkVersion.h>
 //#include <vtkPlaneSource.h>
 //#include <vtkPolyData.h>
 //#include <vtkSmartPointer.h>
@@ -27,46 +27,46 @@
 //#include <pcl/keypoints/harris_3D.h>//harris
 //#include <pcl/keypoints/sift_keypoint.h>//sift
 //#include <pcl/features/cvfh.h>    //CVFH
-//#include <pcl/visualization/pcl_plotter.h>//ÏÔÊ¾ÃèÊö×Ó
+//#include <pcl/visualization/pcl_plotter.h>//æ˜¾ç¤ºæè¿°å­
 //
 //
 //using namespace pcl;
 //
-////cvfhÈ«¾ÖÌØĞÔ
+////cvfhå…¨å±€ç‰¹æ€§
 //int main(int argc, char** argv)
 //{
 //	for (int i = 0; i < 6; i++)
 //	{
 //		std::stringstream ss;
 //		ss << "modelData\\model_" << i << ".ply";
-//		//¶ÁÈ¡µãÔÆ
+//		//è¯»å–ç‚¹äº‘
 //		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
 //		pcl::io::loadPLYFile<pcl::PointXYZ>(ss.str(), *cloud_in);
 //
-//		//¹À¼Æ·¨Ïß
+//		//ä¼°è®¡æ³•çº¿
 //		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
 //		pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
-//		est_normal.setKSearch(16);         //ÉèÖÃkÁÚÓòËÑË÷ãĞÖµÎª20¸öµã
-//		est_normal.setInputCloud(cloud_in);   //ÉèÖÃÊäÈëÄ£ĞÍµãÔÆ
+//		est_normal.setKSearch(16);         //è®¾ç½®ké‚»åŸŸæœç´¢é˜ˆå€¼ä¸º20ä¸ªç‚¹
+//		est_normal.setInputCloud(cloud_in);   //è®¾ç½®è¾“å…¥æ¨¡å‹ç‚¹äº‘
 //		est_normal.setSearchMethod(tree);
 //		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
-//		est_normal.compute(*normals);//¼ÆËãµãÔÆ·¨Ïß
+//		est_normal.compute(*normals);//è®¡ç®—ç‚¹äº‘æ³•çº¿
 //
 //		//VFH
 //		pcl::CVFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> est_vfh;
 //		est_vfh.setInputCloud(cloud_in);
 //		est_vfh.setInputNormals(normals);
-//		//´´½¨Ò»¸ö¿ÕµÄkdÊ÷±íÊ¾·¨
+//		//åˆ›å»ºä¸€ä¸ªç©ºçš„kdæ ‘è¡¨ç¤ºæ³•
 //		pcl::search::KdTree<PointXYZ>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZ>);
 //		est_vfh.setSearchMethod(tree1);
-//		//Êä³öµÄÊı¾İ¼¯
+//		//è¾“å‡ºçš„æ•°æ®é›†
 //		pcl::PointCloud<pcl::VFHSignature308>::Ptr vfhs(new pcl::PointCloud<pcl::VFHSignature308>());
 //		est_vfh.compute(*vfhs);
 //		std::stringstream ss1;
 //		ss1 << "modelData\\model_cvfh_" << i << ".pcd";
 //		pcl::io::savePCDFile(ss1.str(), *vfhs);
 //
-//		//ÏÔÊ¾vfhÌØÕ÷
+//		//æ˜¾ç¤ºvfhç‰¹å¾
 //		pcl::visualization::PCLPlotter plotter;
 //		plotter.addFeatureHistogram<pcl::VFHSignature308>(*vfhs, "vfh", 0);
 //		plotter.plot();

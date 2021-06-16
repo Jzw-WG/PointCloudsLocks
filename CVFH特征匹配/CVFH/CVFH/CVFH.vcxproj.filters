@@ -15,14 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\cvfh_build_tree.cpp">
+    <ClCompile Include="cvfh_build_tree.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\cvfh_nearst_neighbors.cpp">
+    <ClCompile Include="cvfh_nearst_neighbors.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\keyPoints.cpp">
+    <ClCompile Include="keyPoints.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cvfh_build_tree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="cvfh_nearst_neighbors.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
