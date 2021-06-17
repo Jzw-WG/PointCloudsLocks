@@ -1,28 +1,67 @@
-#include <cvfh_build_tree.h>
+ï»¿#include <cvfh_build_tree.h>
 #include <cvfh_nearst_neighbors.h>
+#include <cvfh_generate.h>
+#include <io.h>
+
+void getAllFiles(string path, vector<string>& files)
+{
+	//æ–‡ä»¶å¥æŸ„ 
+	intptr_t  hFile = 0;
+	//æ–‡ä»¶ä¿¡æ¯ç»“æ„ä½“
+	struct _finddata_t fileinfo;
+	string p;
+	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
+	{
+		do
+		{
+			if ((fileinfo.attrib & _A_SUBDIR))
+			{
+				;
+			}
+			else
+			{
+				files.push_back(p.assign(path).append("\\").append(fileinfo.name));
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
+}
+
 int main(int argc, char** argv)
 {
 	string BUILDMODE = "build";
 	string RECOGMODE = "recognition";
+	string GENMODE = "generate";
 
-	string mode = BUILDMODE;
+	string path = "..\\..\\..\\..\\data\\gen\\model";
+	string vfh_path = path + "\\VFH";
+	string build_path = path + "\\build\\";
+
+	string mode = RECOGMODE;
+
+	vector<string> model_files;
+	getAllFiles(path, model_files);
+
+	vector<string> vfh_files;
+	getAllFiles(vfh_path, vfh_files);
 
 	if (mode == BUILDMODE) {
-		build();
+		build(build_path, vfh_files, model_files);
 	}
 	else if (mode == RECOGMODE) {
-		int k = 6;//ÒªÏÔÊ¾µÄÊıÁ¿
-		double thresh = DBL_MAX;// ÉèÖÃÒ»¸öÏàËÆ¶ÈãĞÖµ£¬²»Âú×ããĞÖµµÄ»á±»Çø±ğÏÔÊ¾¡£Ä¬ÈÏÎŞãĞÖµ
+		int k = 3;//è¦æ˜¾ç¤ºçš„æ•°é‡
+		double thresh = DBL_MAX;// è®¾ç½®ä¸€ä¸ªç›¸ä¼¼åº¦é˜ˆå€¼ï¼Œä¸æ»¡è¶³é˜ˆå€¼çš„ä¼šè¢«åŒºåˆ«æ˜¾ç¤ºã€‚é»˜è®¤æ— é˜ˆå€¼
 		//thresh = 200.0;
 
-		//¼ÓÔØ»òÕß¼ÆËãÄ¿±êvfhÌØĞÔ
+		//åŠ è½½æˆ–è€…è®¡ç®—ç›®æ ‡vfhç‰¹æ€§
 		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
 		//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
 
-		calcuate_cvfh("..\\..\\..\\..\\data\\gen\\handled\\lock_1_000_statistic.ply", cvfhs);
+		calcuate_cvfh("..\\..\\..\\..\\data\\gen\\handled\\lock_1_045-3.ply", cvfhs);
+		//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", cvfhs);
 		pcl::visualization::PCLPlotter plotter;
 		plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, "vfh", 0);
-		cvfh_model  histogram;//´æ´¢Ãû³ÆºÍvfhÌØÕ÷
+		cvfh_model  histogram;//å­˜å‚¨åç§°å’Œvfhç‰¹å¾
 		int cvfh_idx = 1;
 		histogram.second.resize(308);
 		histogram.first = "target_vfh";
@@ -40,8 +79,8 @@ int main(int argc, char** argv)
 		flann::Matrix<float> k_distances;
 		flann::Matrix<float> data;
 
-		//´Ó.listÎÄ¼şÖĞ¼ÓÔØ¸÷Ä£ĞÍÃû³Æt
-		if (!boost::filesystem::exists("training_data.h5") || !boost::filesystem::exists("training_data.list"))
+		//ä».listæ–‡ä»¶ä¸­åŠ è½½å„æ¨¡å‹åç§°t
+		if (!boost::filesystem::exists(build_path + training_data_h5_file_name) || !boost::filesystem::exists(build_path + training_data_list_file_name))
 		{
 			pcl::console::print_error("Could not find training data models files %s and %s!\n",
 				training_data_h5_file_name.c_str(), training_data_list_file_name.c_str());
@@ -49,34 +88,34 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			loadFileList(models, training_data_list_file_name);
-			flann::load_from_file(data, training_data_h5_file_name, "training_data");
+			loadFileList(models, build_path + training_data_list_file_name);
+			flann::load_from_file(data, build_path + training_data_h5_file_name, "training_data");
 			pcl::console::print_highlight("Training data found. Loaded %d VFH models from %s/%s.\n",
 				(int)data.rows, training_data_h5_file_name.c_str(), training_data_list_file_name.c_str());
 		}
-		//½øĞĞk½üÁÚËÑË÷
-		if (!boost::filesystem::exists(kdtree_idx_file_name))
+		//è¿›è¡Œkè¿‘é‚»æœç´¢
+		if (!boost::filesystem::exists(build_path + kdtree_idx_file_name))
 		{
 			pcl::console::print_error("Could not find kd-tree index in file %s!", kdtree_idx_file_name.c_str());
 			return (-1);
 		}
 		else
 		{
-			flann::Index<flann::ChiSquareDistance<float> > index(data, flann::SavedIndexParams("kdtree.idx"));
+			flann::Index<flann::ChiSquareDistance<float> > index(data, flann::SavedIndexParams(build_path + kdtree_idx_file_name));
 			index.buildIndex();
 			nearestKSearch(index, histogram, k, k_indices, k_distances);
 		}
 
-		// ÆÁÄ»ÉÏ½üÁÚ½á¹û
+		// å±å¹•ä¸Šè¿‘é‚»ç»“æœ
 		for (int i = 0; i < k; ++i)
 			pcl::console::print_info("    %d - %s (%d) with a distance of: %f\n",
 				i, models.at(k_indices[0][i]).first.c_str(), k_indices[0][i], k_distances[0][i]);
 
 
-		//¶à¸öÊÓÍ¼ÏÔÊ¾½á¹û
+		//å¤šä¸ªè§†å›¾æ˜¾ç¤ºç»“æœ
 		pcl::visualization::PCLVisualizer viewer("VFH Cluster Classifier");
 		int viewport = 0, l = 0, m = 0;
-		//ÏÔÊ¾²¼¾Ö
+		//æ˜¾ç¤ºå¸ƒå±€
 		int y_s = (int)floor(sqrt((double)k));
 		int x_s = y_s + (int)ceil((k / (double)y_s) - y_s);
 		double x_step = (double)(1 / (double)x_s);
@@ -94,7 +133,7 @@ int main(int argc, char** argv)
 		pcl::console::print_info(")\n");
 		for (int i = 0; i < k; ++i)
 		{
-			std::string cloud_name = models.at(k_indices[0][i]).first;//Ä£°åÃû³Æ
+			std::string cloud_name = models.at(k_indices[0][i]).first;//æ¨¡æ¿åç§°
 			viewer.createViewPort(l * x_step, m * y_step, (l + 1) * x_step, (m + 1) * y_step, viewport);
 			l++;
 			if (l >= x_s)
@@ -102,18 +141,18 @@ int main(int argc, char** argv)
 				l = 0;
 				m++;
 			}
-			//Ìí¼ÓµãÔÆ
+			//æ·»åŠ ç‚¹äº‘
 			pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 			pcl::console::print_highlight(stderr, "Loading "); pcl::console::print_value(stderr, "%s ", cloud_name.c_str());
 			std::stringstream ply_name;
-			ply_name << "modelData\\" << cloud_name << ".ply";
+			ply_name << cloud_name;
 			if (pcl::io::loadPLYFile(ply_name.str(), *temp_cloud) == -1)
 			{
 				cout << "load failed!" << endl;
 				break;
 			}
-			//½«µãÔÆÆ½ÒÆµ½Ô­µã£¬±ãÓÚÏÔÊ¾
-			Eigen::Vector4f centroid;//¼ÆËãÖØĞÄ
+			//å°†ç‚¹äº‘å¹³ç§»åˆ°åŸç‚¹ï¼Œä¾¿äºæ˜¾ç¤º
+			Eigen::Vector4f centroid;//è®¡ç®—é‡å¿ƒ
 			pcl::compute3DCentroid(*temp_cloud, centroid);
 			for (size_t i = 0; i < temp_cloud->points.size(); ++i)
 			{
@@ -127,13 +166,13 @@ int main(int argc, char** argv)
 			pcl::console::print_info("load point size:");
 			pcl::console::print_value("%d\n", (int)(*temp_cloud).points.size());
 
-			//Èç¹û²»Âú×ãËùÉèÖÃµÄãĞÖµ£¬ÔòÃû³ÆÓÃºìÉ«ÏÔÊ¾ÇÒÓÃÖ±ÏßÉ¾µô¡£Ä¬ÈÏÃ»ÓĞãĞÖµ
+			//å¦‚æœä¸æ»¡è¶³æ‰€è®¾ç½®çš„é˜ˆå€¼ï¼Œåˆ™åç§°ç”¨çº¢è‰²æ˜¾ç¤ºä¸”ç”¨ç›´çº¿åˆ æ‰ã€‚é»˜è®¤æ²¡æœ‰é˜ˆå€¼
 			std::stringstream ss;
 			ss << k_distances[0][i];
 			if (k_distances[0][i] > thresh)
 			{
 				viewer.addText(ss.str(), 20, 30, 1, 0, 0, ss.str(), viewport);  // display the text with red
-																				// Create a red line£¨´´½¨Ò»ÌõºìÏß£©
+																				// Create a red lineï¼ˆåˆ›å»ºä¸€æ¡çº¢çº¿ï¼‰
 				pcl::PointXYZ min_p, max_p;
 				pcl::getMinMax3D(*temp_cloud, min_p, max_p);
 				std::stringstream line_name;
@@ -145,14 +184,18 @@ int main(int argc, char** argv)
 			{
 				viewer.addText(ss.str(), 20, 30, 0, 1, 0, ss.str(), viewport);
 			}
-			//ÉèÖÃ×ÖÌå´óĞ¡
+			//è®¾ç½®å­—ä½“å¤§å°
 			viewer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_FONT_SIZE, 18, ss.str(), viewport);
-			//ÏÔÊ¾Ä£°åÃû³Æ
+			//æ˜¾ç¤ºæ¨¡æ¿åç§°
 			viewer.addText(cloud_name, 20, 10, cloud_name, viewport);
 		}
-		viewer.setCameraPosition(0, -30, 0, 0, 0, 0, 0, 0, 1, 0);//ÊÓ½Ç
-		plotter.plot();//ÏÔÊ¾cvfhÌØÕ÷
+		viewer.setCameraPosition(0, -30, 0, 0, 0, 0, 0, 0, 1, 0);//è§†è§’
+		plotter.plot();//æ˜¾ç¤ºcvfhç‰¹å¾
 		viewer.spin();
+	}
+	else
+	{
+		save_cvfh(vfh_path, model_files);
 	}
 	
 	return 0;

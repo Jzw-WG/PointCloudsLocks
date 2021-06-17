@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <stdio.h>
 #include <iostream>
 #include <pcl/point_types.h>
@@ -10,17 +10,16 @@
 #include <pcl/console/print.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
-#include <iostream>
 #include <flann/flann.h>
 #include <flann/io/hdf5.h>
 #include <boost/filesystem.hpp>
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/cvfh.h>    //cvFH
-#include <pcl/visualization/pcl_plotter.h>//ÏÔÊ¾ÃèÊö×Ó
+#include <pcl/visualization/pcl_plotter.h>//æ˜¾ç¤ºæè¿°å­
 #include <pcl/filters/voxel_grid.h>
 using namespace std;
 
-typedef std::pair<std::string, std::vector<float> > cvfh_model;//Ç°ÕßÓÃÓÚ´æ´¢Ãû³Æ£¬ºóÕßÓÃÓÚ´æ´¢vfhÌØÕ÷
+typedef std::pair<std::string, std::vector<float> > cvfh_model;//å‰è€…ç”¨äºå­˜å‚¨åç§°ï¼Œåè€…ç”¨äºå­˜å‚¨vfhç‰¹å¾
 
 void nearestKSearch(flann::Index<flann::ChiSquareDistance<float> >& index, const cvfh_model& model, int k, flann::Matrix<int>& indices, flann::Matrix<float>& distances);
 bool loadFileList(std::vector<cvfh_model>& models, const std::string& filename);

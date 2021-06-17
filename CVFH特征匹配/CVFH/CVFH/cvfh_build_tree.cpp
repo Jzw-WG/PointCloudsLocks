@@ -4,30 +4,28 @@ using namespace std;
 
 //根据vfh特征数据，生成kd_tree，即建立模板库
 //其中vfhData文件夹下的.pcd文件储存了vfh特征和xyz格式的模板点云数据
-int build()
+int build(string path, vector<string> files, vector<string> model_files)
 {
 	//加载vfh特征
 	std::vector<cvfh_model> models;
-	for (int i = 0; i < 6; i++)
+	int idx = 0;
+	for (string s : files)
 	{
 		//读取vfh特征
-		std::stringstream ss;
-		ss << "..\\..\\..\\..\\data\\gen\\model\\lock_" << i << "_cvfh_model.ply";
 		cvfh_model cvfh;//存储名称和vfh特征
 		int cvfh_idx = 1;
 		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
-		pcl::io::loadPLYFile<pcl::VFHSignature308>(ss.str(), cvfhs);
+		pcl::io::loadPCDFile<pcl::VFHSignature308>(s, cvfhs);
 		cvfh.second.resize(308);
 
 		//将vfh信息存入vector容器
-		std::stringstream ss1;
-		ss1 << "model_" << i;
-		cvfh.first = ss1.str();
+		cvfh.first = model_files[idx];
 		for (size_t j = 0; j < 308; j++)
 		{
 			cvfh.second[j] = cvfhs.points[0].histogram[j];
 		}
 		models.push_back(cvfh);
+		idx++;
 	}
 
 	//训练数据
@@ -45,9 +43,10 @@ int build()
 	//cout << data.cols << endl;
 	cout << models.size() << endl;
 	//保存数据到磁盘
-	flann::save_to_file(data, training_data_h5_file_name, "training_data");
+	string p;
+	flann::save_to_file(data, p.assign(path).append(training_data_h5_file_name), "training_data");
 	std::ofstream fs;
-	fs.open(training_data_list_file_name.c_str());
+	fs.open(p.assign(path).append(training_data_list_file_name));
 	for (size_t i = 0; i < models.size(); ++i)
 		fs << models[i].first << "\n";
 	fs.close();
@@ -57,7 +56,7 @@ int build()
 	flann::Index<flann::ChiSquareDistance<float> > index(data, flann::LinearIndexParams());
 	//flann::Index<flann::ChiSquareDistance<float> > index (data, flann::KDTreeIndexParams (4));
 	index.buildIndex();
-	index.save(kdtree_idx_file_name);
+	index.save(p.assign(path).append(kdtree_idx_file_name));
 	delete[] data.ptr();
 
 	system("pause");

@@ -21,11 +21,12 @@
   <ItemGroup>
     <ClCompile Include="cvfh_build_tree.cpp" />
     <ClCompile Include="cvfh_nearst_neighbors.cpp" />
-    <ClCompile Include="keyPoints.cpp" />
+    <ClCompile Include="cvfh_generate.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cvfh_build_tree.h" />
+    <ClInclude Include="cvfh_generate.h" />
     <ClInclude Include="cvfh_nearst_neighbors.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
