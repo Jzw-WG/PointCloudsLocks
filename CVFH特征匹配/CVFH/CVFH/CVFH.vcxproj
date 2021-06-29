@@ -20,12 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cvfh_build_tree.cpp" />
+    <ClCompile Include="cvfh_const.cpp" />
     <ClCompile Include="cvfh_nearst_neighbors.cpp" />
     <ClCompile Include="cvfh_generate.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cvfh_build_tree.h" />
+    <ClInclude Include="cvfh_const.h" />
     <ClInclude Include="cvfh_generate.h" />
     <ClInclude Include="cvfh_nearst_neighbors.h" />
   </ItemGroup>

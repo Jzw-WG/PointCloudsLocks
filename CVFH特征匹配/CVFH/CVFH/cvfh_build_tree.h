@@ -12,6 +12,7 @@ VTK_MODULE_INIT(vtkInteractionStyle);
 #include <flann/flann.h>
 #include <flann/io/hdf5.h>
 #include <fstream>
+#include <cvfh_const.h>
 
 typedef std::pair<std::string, std::vector<float> > cvfh_model;//一个用于存储名称，一个用于存储vrf特征
 

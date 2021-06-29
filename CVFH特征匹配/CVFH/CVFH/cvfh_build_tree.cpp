@@ -1,7 +1,6 @@
 ﻿#include <cvfh_build_tree.h>
 
 using namespace std;
-
 //根据vfh特征数据，生成kd_tree，即建立模板库
 //其中vfhData文件夹下的.pcd文件储存了vfh特征和xyz格式的模板点云数据
 int build(string path, vector<string> files, vector<string> model_files)
@@ -29,10 +28,7 @@ int build(string path, vector<string> files, vector<string> model_files)
 	}
 
 	//训练数据
-	std::string kdtree_idx_file_name = "kdtree.idx";
-	std::string training_data_h5_file_name = "training_data.h5";
-	std::string training_data_list_file_name = "training_data.list";
-	pcl::console::print_highlight("Loaded %d VFH models. Creating training data %s/%s.\n", (int)models.size(), training_data_h5_file_name.c_str(), training_data_list_file_name.c_str());
+	pcl::console::print_highlight("Loaded %d VFH models. Creating training data %s/%s.\n", (int)models.size(), GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
 
 	//转化数据为FLANN格式
 	flann::Matrix<float> data(new float[models.size() * models[0].second.size()], models.size(), models[0].second.size());
@@ -44,19 +40,19 @@ int build(string path, vector<string> files, vector<string> model_files)
 	cout << models.size() << endl;
 	//保存数据到磁盘
 	string p;
-	flann::save_to_file(data, p.assign(path).append(training_data_h5_file_name), "training_data");
+	flann::save_to_file(data, p.assign(path).append(GConst::training_data_h5_file_name), "training_data");
 	std::ofstream fs;
-	fs.open(p.assign(path).append(training_data_list_file_name));
+	fs.open(p.assign(path).append(GConst::training_data_list_file_name));
 	for (size_t i = 0; i < models.size(); ++i)
 		fs << models[i].first << "\n";
 	fs.close();
 
 	//建立树的索引并将其存储在磁盘上
-	pcl::console::print_error("Building the kdtree index (%s) for %d elements...\n", kdtree_idx_file_name.c_str(), (int)data.rows);
+	pcl::console::print_error("Building the kdtree index (%s) for %d elements...\n", GConst::kdtree_idx_file_name.c_str(), (int)data.rows);
 	flann::Index<flann::ChiSquareDistance<float> > index(data, flann::LinearIndexParams());
 	//flann::Index<flann::ChiSquareDistance<float> > index (data, flann::KDTreeIndexParams (4));
 	index.buildIndex();
-	index.save(p.assign(path).append(kdtree_idx_file_name));
+	index.save(p.assign(path).append(GConst::kdtree_idx_file_name));
 	delete[] data.ptr();
 
 	system("pause");

@@ -1,4 +1,5 @@
-﻿#include <cvfh_build_tree.h>
+#include <cvfh_const.h>
+#include <cvfh_build_tree.h>
 #include <cvfh_nearst_neighbors.h>
 #include <cvfh_generate.h>
 #include <io.h>
@@ -29,15 +30,11 @@ void getAllFiles(string path, vector<string>& files)
 
 int main(int argc, char** argv)
 {
-	string BUILDMODE = "build";
-	string RECOGMODE = "recognition";
-	string GENMODE = "generate";
-
 	string path = "..\\..\\..\\..\\data\\gen\\model";
 	string vfh_path = path + "\\VFH";
 	string build_path = path + "\\build\\";
 
-	string mode = RECOGMODE;
+	string mode = GConst::RECOGMODE;
 
 	vector<string> model_files;
 	getAllFiles(path, model_files);
@@ -45,10 +42,10 @@ int main(int argc, char** argv)
 	vector<string> vfh_files;
 	getAllFiles(vfh_path, vfh_files);
 
-	if (mode == BUILDMODE) {
+	if (mode == GConst::BUILDMODE) {
 		build(build_path, vfh_files, model_files);
 	}
-	else if (mode == RECOGMODE) {
+	else if (mode == GConst::RECOGMODE) {
 		int k = 3;//要显示的数量
 		double thresh = DBL_MAX;// 设置一个相似度阈值，不满足阈值的会被区别显示。默认无阈值
 		//thresh = 200.0;
@@ -70,38 +67,34 @@ int main(int argc, char** argv)
 			histogram.second[j] = cvfhs.points[0].histogram[j];
 		}
 
-
-		std::string kdtree_idx_file_name = "kdtree.idx";
-		std::string training_data_h5_file_name = "training_data.h5";
-		std::string training_data_list_file_name = "training_data.list";
 		std::vector<cvfh_model> models;
 		flann::Matrix<int> k_indices;
 		flann::Matrix<float> k_distances;
 		flann::Matrix<float> data;
 
 		//从.list文件中加载各模型名称t
-		if (!boost::filesystem::exists(build_path + training_data_h5_file_name) || !boost::filesystem::exists(build_path + training_data_list_file_name))
+		if (!boost::filesystem::exists(build_path + GConst::training_data_h5_file_name) || !boost::filesystem::exists(build_path + GConst::training_data_list_file_name))
 		{
 			pcl::console::print_error("Could not find training data models files %s and %s!\n",
-				training_data_h5_file_name.c_str(), training_data_list_file_name.c_str());
+				GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
 			return (-1);
 		}
 		else
 		{
-			loadFileList(models, build_path + training_data_list_file_name);
-			flann::load_from_file(data, build_path + training_data_h5_file_name, "training_data");
+			loadFileList(models, build_path + GConst::training_data_list_file_name);
+			flann::load_from_file(data, build_path + GConst::training_data_h5_file_name, "training_data");
 			pcl::console::print_highlight("Training data found. Loaded %d VFH models from %s/%s.\n",
-				(int)data.rows, training_data_h5_file_name.c_str(), training_data_list_file_name.c_str());
+				(int)data.rows, GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
 		}
 		//进行k近邻搜索
-		if (!boost::filesystem::exists(build_path + kdtree_idx_file_name))
+		if (!boost::filesystem::exists(build_path + GConst::kdtree_idx_file_name))
 		{
-			pcl::console::print_error("Could not find kd-tree index in file %s!", kdtree_idx_file_name.c_str());
+			pcl::console::print_error("Could not find kd-tree index in file %s!", GConst::kdtree_idx_file_name.c_str());
 			return (-1);
 		}
 		else
 		{
-			flann::Index<flann::ChiSquareDistance<float> > index(data, flann::SavedIndexParams(build_path + kdtree_idx_file_name));
+			flann::Index<flann::ChiSquareDistance<float> > index(data, flann::SavedIndexParams(build_path + GConst::kdtree_idx_file_name));
 			index.buildIndex();
 			nearestKSearch(index, histogram, k, k_indices, k_distances);
 		}
