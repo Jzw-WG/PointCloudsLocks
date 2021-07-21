@@ -30,7 +30,11 @@ void getAllFiles(string path, vector<string>& files)
 
 int main(int argc, char** argv)
 {
-	string path = "..\\..\\..\\..\\data\\gen\\model";
+	/*string path = "..\\..\\..\\..\\data\\gen\\model";
+	string vfh_path = path + "\\VFH";
+	string build_path = path + "\\build\\";*/
+
+	string path = "..\\..\\..\\..\\data\\stdmodel";
 	string vfh_path = path + "\\VFH";
 	string build_path = path + "\\build\\";
 
@@ -46,7 +50,7 @@ int main(int argc, char** argv)
 		build(build_path, vfh_files, model_files);
 	}
 	else if (mode == GConst::RECOGMODE) {
-		int k = 3;//要显示的数量
+		int k = 6;//要显示的数量
 		double thresh = DBL_MAX;// 设置一个相似度阈值，不满足阈值的会被区别显示。默认无阈值
 		//thresh = 200.0;
 
@@ -54,8 +58,11 @@ int main(int argc, char** argv)
 		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
 		//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
 
-		calcuate_cvfh("..\\..\\..\\..\\data\\gen\\handled\\lock_1_045-3.ply", cvfhs);
+		//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\handled\\lock_1_045-3.ply", cvfhs);
 		//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", cvfhs);
+		//calcuate_cvfh("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", cvfhs);
+		calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", cvfhs);
+		//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", cvfhs);
 		pcl::visualization::PCLPlotter plotter;
 		plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, "vfh", 0);
 		cvfh_model  histogram;//存储名称和vfh特征

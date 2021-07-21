@@ -16,6 +16,36 @@ void SplitString(const string& s, vector<string>& v, const string& c)
 		v.push_back(s.substr(pos1));
 }
 
+void eraseInfPoint1(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in)
+{
+	//去除NaN点 防止compute报错
+	pcl::PointCloud<pcl::PointXYZ>::iterator it = cloud_in->points.begin();
+	while (it != cloud_in->points.end())
+	{
+		float x, y, z;
+		x = it->x;
+		y = it->y;
+		z = it->z;
+		if (!pcl_isfinite(x) || !pcl_isfinite(y) || !pcl_isfinite(z))
+		{
+			it = cloud_in->points.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+int voxelFilter1(pcl::PointCloud<pcl::PointXYZ>::Ptr inputcloud, pcl::PointCloud<pcl::PointXYZ>::Ptr outputcloud, float lx, float ly, float lz) {
+	if (inputcloud->points.size() == 0) {
+		return -1;
+	}
+	pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
+	voxel_grid.setInputCloud(inputcloud);//输入
+	voxel_grid.setLeafSize(lx, ly, lz);//分别率,越小越密,参数分别是xyz
+	voxel_grid.filter(*outputcloud);//输出
+	return 0;
+}
+
 //cvfh全局特性
 int save_cvfh(string path, vector<string> files)
 {
@@ -30,7 +60,8 @@ int save_cvfh(string path, vector<string> files)
 		//读取点云
 		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::io::loadPLYFile<pcl::PointXYZ>(s, *cloud_in);
-
+		eraseInfPoint1(cloud_in);
+		voxelFilter1(cloud_in, cloud_in, 0.005, 0.005, 0.005);
 		//估计法线
 		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
 		pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
@@ -53,10 +84,10 @@ int save_cvfh(string path, vector<string> files)
 		string vfh_filename = path + "\\" + name + "_vfh" + ".pcd";
 		pcl::io::savePCDFile(vfh_filename, *vfhs);
 
-		//显示vfh特征
-		pcl::visualization::PCLPlotter plotter;
-		plotter.addFeatureHistogram<pcl::VFHSignature308>(*vfhs, "vfh", 0);
-		plotter.plot();
+		////显示vfh特征
+		//pcl::visualization::PCLPlotter plotter;
+		//plotter.addFeatureHistogram<pcl::VFHSignature308>(*vfhs, "vfh", 0);
+		//plotter.plot();
 	}
 	cout << "ok" << endl;
 	return 0;

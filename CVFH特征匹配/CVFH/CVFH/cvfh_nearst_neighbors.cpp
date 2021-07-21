@@ -34,12 +34,44 @@ bool loadFileList(std::vector<cvfh_model>& models, const std::string& filename)
 	return (true);
 }
 
+void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in)
+{
+	//去除NaN点 防止compute报错
+	pcl::PointCloud<pcl::PointXYZ>::iterator it = cloud_in->points.begin();
+	while (it != cloud_in->points.end())
+	{
+		float x, y, z;
+		x = it->x;
+		y = it->y;
+		z = it->z;
+		if (!pcl_isfinite(x) || !pcl_isfinite(y) || !pcl_isfinite(z))
+		{
+			it = cloud_in->points.erase(it);
+		}
+		else
+			++it;
+	}
+}
+
+int voxelFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr inputcloud, pcl::PointCloud<pcl::PointXYZ>::Ptr outputcloud, float lx, float ly, float lz) {
+	if (inputcloud->points.size() == 0) {
+		return -1;
+	}
+	pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
+	voxel_grid.setInputCloud(inputcloud);//输入
+	voxel_grid.setLeafSize(lx, ly, lz);//分别率,越小越密,参数分别是xyz
+	voxel_grid.filter(*outputcloud);//输出
+	return 0;
+}
+
 //计算vfh特征
 void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfhs, float normal_r)
 {
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::io::loadPLYFile<pcl::PointXYZ>(name, *cloud);
-
+	eraseInfPoint(cloud);
+	voxelFilter(cloud, cloud, 0.005, 0.005, 0.005);
+	cout << "滤波后点云数量：" << cloud->size() << endl;
 	//估计法线
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
 	ne.setInputCloud(cloud);
