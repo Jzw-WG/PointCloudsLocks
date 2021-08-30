@@ -153,7 +153,10 @@ int main()
 
         //Eigen::Matrix4f sac_trans;
         //sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result_sac, source_normals, target_normals);//会提取已计算的法线
+        //pcl::transformPointCloud(*source_filtered, *result_rot, sac_trans);
         //pcl::transformPointCloud(*source, *source, sac_trans);
+        //pcl::transformPointCloud(*source_filtered, *source_filtered, sac_trans);
+
         Eigen::Matrix4f pre_icp_trans = Eigen::Matrix4f::Identity();
         pre_icp_trans = icp_trans;
         icp_trans = ICPTrans(result_rot, target_filtered, source, target, result_icp, result_icp_filtered, 100);
