@@ -1,4 +1,4 @@
-#include <pcl/ModelCoefficients.h>
+﻿#include <pcl/ModelCoefficients.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
@@ -25,7 +25,7 @@ int color_bar[][3] =
 
 void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in)
 {
-    //ȥ��NaN�� ��ֹcompute����
+    //去除NaN点 防止compute报错
     pcl::PointCloud<pcl::PointXYZ>::iterator it = cloud_in->points.begin();
     while (it != cloud_in->points.end())
     {
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
     pcl::VoxelGrid<pcl::PointXYZ> vg;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
     vg.setInputCloud(cloud);
-    vg.setLeafSize(0.002, 0.002, 0.002);
+    vg.setLeafSize(0.005, 0.005, 0.005);
     vg.filter(*cloud);
     std::cout << "PointCloud after filtering has: " << cloud->points.size() << " data points." << std::endl; //*
     
@@ -113,17 +113,17 @@ int main(int argc, char** argv)
 
     std::vector<pcl::PointIndices> cluster_indices;
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-    ec.setClusterTolerance(0.002); //���ý��������������뾶Ϊ2cm
-    ec.setMinClusterSize(300);    //����һ��������Ҫ�����ٵ���ĿΪ100
-    ec.setMaxClusterSize(10000);  //����һ��������Ҫ��������ĿΪ25000
-    ec.setSearchMethod(tree);     //���õ��Ƶ���������
-    ec.setInputCloud(cloud); //����ԭʼ���� 
-    ec.extract(cluster_indices);  //�ӵ�������ȡ����
+    ec.setClusterTolerance(0.002); //设置近邻搜索的搜索半径为2cm
+    ec.setMinClusterSize(1000);    //设置一个聚类需要的最少点数目为100
+    ec.setMaxClusterSize(50000);  //设置一个聚类需要的最大点数目为25000
+    ec.setSearchMethod(tree);     //设置点云的搜索机制
+    ec.setInputCloud(cloud); //设置原始点云 
+    ec.extract(cluster_indices);  //从点云中提取聚类
 
-                                   // ���ӻ�����
-    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("segmention"));  //����һ��boost�������󣬲������ڴ�ռ�
-    // ���ǽ�Ҫʹ�õ���ɫ
-    float bckgr_gray_level = 0.0;  // ��ɫ
+                                   // 可视化部分
+    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("segmention"));  //设置一个boost共享对象，并分配内存空间
+    // 我们将要使用的颜色
+    float bckgr_gray_level = 0.0;  // 黑色
     float txt_gray_lvl = 1.0 - bckgr_gray_level;
     int num = cluster_indices.size();
 
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
         pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cloud_in_color_h(cloud,
             color_bar[j][0],
             color_bar[j][1],
-            color_bar[j][2]);//������ʾ���Ƶ���ɫ
+            color_bar[j][2]);//赋予显示点云的颜色
         viewer->addPointCloud(cloud_cluster, cloud_in_color_h, std::to_string(j));
         
         j++;
