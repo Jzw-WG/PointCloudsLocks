@@ -1,4 +1,4 @@
-﻿#include <ICP.h>
+#include <ICP.h>
 #include <iostream>
 #include <SAC-IA.h>
 
@@ -44,11 +44,11 @@ int main()
     PointCloud::Ptr target_filtered(new PointCloud);
 
     //加载点云
-    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *source);//TODO:交换顺序结果不一致？？？？
-    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun000.ply", *target);
-    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_315_statistic.ply", *source);
-    //pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\handled\\lock_1_270_statistic.ply", *target);
-    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\model\\lock_1_model.ply", *target);
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun000.ply", *source);//TODO:交换顺序结果不一致？？？？
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\data\\bun090.ply", *target);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\raw8\\handled\\lock_1_045_statistic.ply", *source);
+    pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\raw8\\handled\\lock_1_000_statistic.ply", *target);
+    //pcl::io::loadPLYFile("..\\..\\..\\data\\gen\\raw8\\model\\lock_1_model.ply", *target);
 
     //pcl::io::loadPLYFile("..\\..\\..\\data\\pointcloud-11-18\\LOCK1\\lock_1_000-1-zrh.ply", *source);
     //pcl::io::loadPLYFile("..\\..\\..\\data\\pointcloud-11-18\\LOCK1\\D2.ply", *target);

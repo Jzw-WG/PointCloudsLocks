@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 #include <PointCloudFilters.h>
@@ -6,8 +6,12 @@
 #include<string>
 
 int main(int argc, char** argv) {
-	string inputFileName = "..\\..\\..\\..\\data\\gen\\lock_1_000.ply";
-	string outputFileName = "..\\..\\..\\..\\data\\gen\\handled\\lock_1_000_pass.ply";
+	//string inputFileName = "..\\..\\..\\..\\data\\gen\\raw8\\lock_1_090.ply";
+	//string outputFileName = "..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_1_090_statistic.ply";
+	//string inputFileName = "..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply";
+	//string outputFileName = "..\\..\\..\\..\\data\\stdmodel\\bunny_model.ply";
+	string inputFileName = "..\\..\\..\\..\\data\\gen\\raw8\\handled\\model\\lock_1_model_dense.ply";
+	string outputFileName = "..\\..\\..\\..\\data\\gen\\raw8\\handled\\model\\lock_1_model_desnse_s.ply";
 	PointCloud::Ptr inputcloud(new PointCloud);
 	PointCloud::Ptr outputcloud(new PointCloud);
 	if (pcl::io::loadPLYFile<pcl::PointXYZ>(inputFileName, *inputcloud) == -1) {

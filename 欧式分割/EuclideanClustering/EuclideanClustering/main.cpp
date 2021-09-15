@@ -25,7 +25,7 @@ int color_bar[][3] =
 
 void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in)
 {
-    //È¥³ıNaNµã ·ÀÖ¹compute±¨´í
+    //È¥ï¿½ï¿½NaNï¿½ï¿½ ï¿½ï¿½Ö¹computeï¿½ï¿½ï¿½ï¿½
     pcl::PointCloud<pcl::PointXYZ>::iterator it = cloud_in->points.begin();
     while (it != cloud_in->points.end())
     {
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
     // Read in the cloud data
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>), cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
 
-    if (pcl::io::loadPLYFile<pcl::PointXYZ>("..\\..\\..\\..\\data\\bunny\\data\\bun000.ply", *cloud) == -1)
+    if (pcl::io::loadPLYFile<pcl::PointXYZ>("..\\..\\..\\..\\data\\gen\\raw8\\lock_1_000.ply", *cloud) == -1)
     {
         std::cout << "Cloud reading failed." << std::endl;
         return (-1);
@@ -113,17 +113,17 @@ int main(int argc, char** argv)
 
     std::vector<pcl::PointIndices> cluster_indices;
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-    ec.setClusterTolerance(0.002); //ÉèÖÃ½üÁÚËÑË÷µÄËÑË÷°ë¾¶Îª2cm
-    ec.setMinClusterSize(300);    //ÉèÖÃÒ»¸ö¾ÛÀàĞèÒªµÄ×îÉÙµãÊıÄ¿Îª100
-    ec.setMaxClusterSize(10000);  //ÉèÖÃÒ»¸ö¾ÛÀàĞèÒªµÄ×î´óµãÊıÄ¿Îª25000
-    ec.setSearchMethod(tree);     //ÉèÖÃµãÔÆµÄËÑË÷»úÖÆ
-    ec.setInputCloud(cloud); //ÉèÖÃÔ­Ê¼µãÔÆ 
-    ec.extract(cluster_indices);  //´ÓµãÔÆÖĞÌáÈ¡¾ÛÀà
+    ec.setClusterTolerance(0.002); //ï¿½ï¿½ï¿½Ã½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë¾¶Îª2cm
+    ec.setMinClusterSize(300);    //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½Ùµï¿½ï¿½ï¿½Ä¿Îª100
+    ec.setMaxClusterSize(10000);  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Îª25000
+    ec.setSearchMethod(tree);     //ï¿½ï¿½ï¿½Ãµï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    ec.setInputCloud(cloud); //ï¿½ï¿½ï¿½ï¿½Ô­Ê¼ï¿½ï¿½ï¿½ï¿½ 
+    ec.extract(cluster_indices);  //ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
 
-                                   // ¿ÉÊÓ»¯²¿·Ö
-    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("segmention"));  //ÉèÖÃÒ»¸öboost¹²Ïí¶ÔÏó£¬²¢·ÖÅäÄÚ´æ¿Õ¼ä
-    // ÎÒÃÇ½«ÒªÊ¹ÓÃµÄÑÕÉ«
-    float bckgr_gray_level = 0.0;  // ºÚÉ«
+                                   // ï¿½ï¿½ï¿½Ó»ï¿½ï¿½ï¿½ï¿½ï¿½
+    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer(new pcl::visualization::PCLVisualizer("segmention"));  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½boostï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½Õ¼ï¿½
+    // ï¿½ï¿½ï¿½Ç½ï¿½ÒªÊ¹ï¿½Ãµï¿½ï¿½ï¿½É«
+    float bckgr_gray_level = 0.0;  // ï¿½ï¿½É«
     float txt_gray_lvl = 1.0 - bckgr_gray_level;
     int num = cluster_indices.size();
 
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
         pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> cloud_in_color_h(cloud,
             color_bar[j][0],
             color_bar[j][1],
-            color_bar[j][2]);//¸³ÓèÏÔÊ¾µãÔÆµÄÑÕÉ«
+            color_bar[j][2]);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½É«
         viewer->addPointCloud(cloud_cluster, cloud_in_color_h, std::to_string(j));
         
         j++;

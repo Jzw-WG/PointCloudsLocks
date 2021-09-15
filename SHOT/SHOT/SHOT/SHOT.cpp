@@ -198,10 +198,10 @@ int main(int argc, char* argv[])
 	}
 	*/
 
-	pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\handled\\lock_1_045_statistic.ply", *model);
-	pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\lock_1_000.ply", *scene);
-	//pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\handled\\lock_2_000-3.ply", *model);
-	//pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\lock_2_000.ply", *scene);
+	pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_1_045_statistic.ply", *model);
+	pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\lock_1_000.ply", *scene);
+	//pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_2_000-3.ply", *model);
+	//pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\lock_2_000.ply", *scene);
 
 	/*
 	pcl::visualization::CloudViewer viewer("Correspondence Grouping");

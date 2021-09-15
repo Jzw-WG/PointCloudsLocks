@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 	string vfh_path = path + "\\VFH";
 	string build_path = path + "\\build\\";*/
 
-	string path = "..\\..\\..\\..\\data\\stdmodel";
+	string path = "..\\..\\..\\..\\data\\gen\\raw8\\model";
 	string vfh_path = path + "\\VFH";
 	string build_path = path + "\\build\\";
 
@@ -58,10 +58,10 @@ int main(int argc, char** argv)
 		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
 		//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
 
-		//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\handled\\lock_1_045-3.ply", cvfhs);
+		calcuate_cvfh("..\\..\\..\\..\\data\\gen\\handled\\lock_3_000-3.ply", cvfhs);
 		//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", cvfhs);
 		//calcuate_cvfh("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", cvfhs);
-		calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", cvfhs);
+		//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", cvfhs);
 		//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", cvfhs);
 		pcl::visualization::PCLPlotter plotter;
 		plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, "vfh", 0);
