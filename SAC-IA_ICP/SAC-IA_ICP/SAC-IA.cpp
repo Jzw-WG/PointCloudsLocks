@@ -1,4 +1,4 @@
-﻿#include <SAC-IA.h>
+#include <SAC-IA.h>
 
 
 
@@ -197,6 +197,12 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
     est_normals(source, source_normals, source_origin);//使用源数据计算法线效果提升明显
     est_normals(target, target_normals, target_origin);
 
+    //est_normals(source, source_normals, NULL);//使用源数据计算法线效果提升明显
+    //est_normals(target, target_normals, NULL);
+
+    end = clock();
+    cout << "normal calculate time is: " << float(end - start) / CLOCKS_PER_SEC << endl;
+
     ////计算SIFT
     //pcl::PointCloud<pcl::PointXYZ>::Ptr source_keypoints_sift(new pcl::PointCloud<pcl::PointXYZ>);  // sift关键点
     //pcl::PointCloud<pcl::PointXYZ>::Ptr target_keypoints_sift(new pcl::PointCloud<pcl::PointXYZ>);  // sift关键点
@@ -208,13 +214,22 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
     target_vfh = computure_vfh_feature(target, target_normals);
     pcl::io::savePLYFile("", *target_vfh);
     */
+
+    clock_t start1, end1, end2, time1;
+    start1 = clock();
     //计算FPFH
     source_fpfh = compute_fpfh_feature(source, source_normals/*, source_origin*/);
     target_fpfh = compute_fpfh_feature(target, target_normals/*, target_origin*/);
 
+    end1 = clock();
+    cout << "fpfh calculate time is: " << float(end1 - start1) / CLOCKS_PER_SEC << endl;
+
     //FPFH配准
     Eigen::Matrix4f sac_trans;
     sac_trans = FPFHmatch(source, target, source_fpfh, target_fpfh);
+
+    end2 = clock();
+    cout << "fpfh match calculate time is: " << float(end2 - end1) / CLOCKS_PER_SEC << endl;
 
     end = clock();
     cout << "calculate time is: " << float(end - start) / CLOCKS_PER_SEC << endl;
