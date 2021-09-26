@@ -1,6 +1,7 @@
 #include <ICP.h>
 #include <iostream>
 #include <SAC-IA.h>
+#include <pcl/common/common.h>
 
 
 using namespace std;
@@ -59,7 +60,12 @@ int main()
     eraseInfPoint(source);
 
     cout << "原始model点云数量:" << target->size() << endl;
+    pcl::PointXYZ minPt, maxPt;
+    pcl::getMinMax3D(*target, minPt, maxPt);
+    cout << "原始点云MaxX-MinX：" << maxPt.x - minPt.x << endl;
     cout << "原始scene点云数量:" << source->size() << endl;
+    pcl::getMinMax3D(*source, minPt, maxPt);
+    cout << "原始点云MaxX-MinX：" << maxPt.x - minPt.x << endl;
 
     //滤波
     //voxelFilter(source, source_filtered, 0, 0, 0);
