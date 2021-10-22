@@ -116,7 +116,7 @@ static bool point_cloud_depth_to_color(k4a_transformation_t transformation_handl
     return true;
 }
 
-static int capture(std::string output_dir, uint8_t deviceId = K4A_DEVICE_DEFAULT)
+static int capture(std::string output_dir, std::string filename, uint8_t deviceId = K4A_DEVICE_DEFAULT)
 {
     int returnCode = 1;
     k4a_device_t device = NULL;
@@ -198,9 +198,9 @@ static int capture(std::string output_dir, uint8_t deviceId = K4A_DEVICE_DEFAULT
 
     // Compute color point cloud by warping color image into depth camera geometry
 #ifdef _WIN32
-    file_name = output_dir + "\\color_to_depth.ply";
+    file_name = output_dir + "\\" + filename;
 #else
-    file_name = output_dir + "/color_to_depth.ply";
+    file_name = output_dir + "/" + filename;
 #endif
     if (point_cloud_color_to_depth(transformation, depth_image, color_image, file_name.c_str()) == false)
     {
@@ -452,13 +452,13 @@ int main(int argc, char** argv)
         std::string mode = std::string(argv[1]);
         if (mode == "capture")
         {
-            if (argc == 3)
+            if (argc == 4)
             {
-                returnCode = capture(argv[2]);
+                returnCode = capture(argv[2], argv[3]);
             }
-            else if (argc == 4)
+            else if (argc == 5)
             {
-                returnCode = capture(argv[2], (uint8_t)atoi(argv[3]));
+                returnCode = capture(argv[2], argv[3], (uint8_t)atoi(argv[4]));
             }
             else
             {
