@@ -63,7 +63,7 @@ Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, 
     icp.setMaximumIterations(iterations);    //设置最大迭代次数iterations=true
     //icp.setEuclideanFitnessEpsilon(0.0001);
     icp.setTransformationEpsilon(1e-10);
-    icp.setInputSource(cloud_icp);   //设置输入的点云
+    icp.setInputSource(cloud_in);   //设置输入的点云
     icp.setInputTarget(cloud_tar);    //目标点云
     icp.setMaxCorrespondenceDistance(0.005);
     icp.align(*cloud_icp);          //匹配后源点云
