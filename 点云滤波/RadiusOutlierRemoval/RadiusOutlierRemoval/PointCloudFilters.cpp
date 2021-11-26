@@ -1,4 +1,4 @@
-﻿#include <PointCloudFilters.h>
+#include <PointCloudFilters.h>
 
 //体素滤波
 int voxelFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float lx, float ly, float lz) {
@@ -148,4 +148,59 @@ int pathThroughFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, s
 	pass.filter(*outputcloud);               //滤波并存储
 	cout << "there are " << outputcloud->points.size() << " points after filtering." << endl;
 	return 0;
+}
+
+int regionGrowingSimplify(PointCloud::Ptr cloud) //test
+{
+	pcl::search::Search<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
+	pcl::PointCloud <pcl::Normal>::Ptr normals(new pcl::PointCloud <pcl::Normal>);
+	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator;
+	normal_estimator.setSearchMethod(tree);
+	normal_estimator.setInputCloud(cloud);
+	normal_estimator.setKSearch(4);
+	normal_estimator.compute(*normals);
+
+	pcl::IndicesPtr indices(new std::vector <int>);
+	pcl::PassThrough<pcl::PointXYZ> pass;
+	pass.setInputCloud(cloud);
+	pass.setFilterFieldName("z");
+	pass.setFilterLimits(0.0, 1.0);
+	pass.filter(*indices);
+
+	pcl::RegionGrowing<pcl::PointXYZ, pcl::Normal> reg;
+	reg.setMinClusterSize(1);
+	reg.setMaxClusterSize(1000);
+	reg.setSearchMethod(tree);
+	reg.setNumberOfNeighbours(10);
+	reg.setInputCloud(cloud);
+	//reg.setIndices (indices);
+	reg.setInputNormals(normals);
+	reg.setSmoothnessThreshold(3.0 / 180.0 * M_PI);
+	reg.setCurvatureThreshold(0.2);
+
+	std::vector <pcl::PointIndices> clusters;
+	reg.extract(clusters);
+
+	std::cout << "Number of clusters is equal to " << clusters.size() << std::endl;
+	std::cout << "First cluster has " << clusters[0].indices.size() << " points." << endl;
+	std::cout << "These are the indices of the points of the initial" <<
+		std::endl << "cloud that belong to the first cluster:" << std::endl;
+	int counter = 0;
+	while (counter < clusters[0].indices.size())
+	{
+		std::cout << clusters[0].indices[counter] << ", ";
+		counter++;
+		if (counter % 10 == 0)
+			std::cout << std::endl;
+	}
+	std::cout << std::endl;
+
+	pcl::PointCloud <pcl::PointXYZRGB>::Ptr colored_cloud = reg.getColoredCloud();
+	pcl::visualization::CloudViewer viewer("Cluster viewer");
+	viewer.showCloud(colored_cloud);
+	while (!viewer.wasStopped())
+	{
+	}
+
+	return (0);
 }

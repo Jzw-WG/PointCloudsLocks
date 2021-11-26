@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <pcl/filters/radius_outlier_removal.h>
 #include <pcl/filters/statistical_outlier_removal.h>  //滤波相关
 #include <pcl/filters/conditional_removal.h>
@@ -21,6 +21,11 @@
 #include <pcl/surface/mls.h>
 #include <pcl/point_types.h>
 #include <stdlib.h>//将整型转换成字符型
+#include <pcl/search/search.h>
+#include <pcl/search/kdtree.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/segmentation/region_growing.h>
 
 using namespace std;  // 可以加入 std 的命名空间
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
@@ -32,3 +37,4 @@ int mediumnFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, float
 int statisticalOutlierRemovalFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, int nr_k, double stddev_mult, bool nagetive = false);
 int radiusFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, double radius, int min_pts);
 int pathThroughFilter(PointCloud::Ptr inputcloud, PointCloud::Ptr outputcloud, string field, float limit_min, float limit_max);
+int regionGrowingSimplify(PointCloud::Ptr cloud);
