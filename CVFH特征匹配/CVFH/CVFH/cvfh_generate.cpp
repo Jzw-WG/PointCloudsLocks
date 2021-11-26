@@ -62,6 +62,11 @@ int save_cvfh(string path, vector<string> files)
 		pcl::io::loadPLYFile<pcl::PointXYZ>(s, *cloud_in);
 		eraseInfPoint1(cloud_in);
 		voxelFilter1(cloud_in, cloud_in, 0.005, 0.005, 0.005);
+		//获取包围盒
+		pcl::PointXYZ minpt, maxpt;
+		pcl::getMinMax3D(*cloud_in, minpt, maxpt);
+		float maxh = maxpt.y - minpt.y; //相机为水平视角时计算可用
+		float maxw = maxpt.x - minpt.x;
 		//估计法线
 		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
 		pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
@@ -81,7 +86,8 @@ int save_cvfh(string path, vector<string> files)
 		//输出的数据集
 		pcl::PointCloud<pcl::VFHSignature308>::Ptr vfhs(new pcl::PointCloud<pcl::VFHSignature308>());
 		est_vfh.compute(*vfhs);
-		string vfh_filename = path + "\\" + name + "_vfh" + ".pcd";
+		//vfh文件带包围盒信息小数*10000倍
+		string vfh_filename = path + "\\" + name + "_vfh" + "_box_" + std::to_string((int)(maxh*10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
 		pcl::io::savePCDFile(vfh_filename, *vfhs);
 
 		////显示vfh特征

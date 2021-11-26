@@ -10,6 +10,21 @@ int build(string path, vector<string> files, vector<string> model_files)
 	int idx = 0;
 	for (string s : files)
 	{
+		//找到vfh文件中的包围盒信息
+		string::size_type iPos = s.find_last_of('\\') + 1;
+		string filename = s.substr(iPos, s.length() - iPos);
+		string name = filename.substr(0, filename.rfind("."));
+		string suffix_str = filename.substr(filename.find_last_of('.') + 1);
+		int boxpos = filename.find("box");
+		string bounding_box = "";
+		string maxh_str = "";
+		string maxw_str = "";
+		if (boxpos > 0) {
+			bounding_box = name.substr(boxpos + 3 + 1);
+			maxh_str = bounding_box.substr(0, bounding_box.rfind("-"));
+			maxw_str = bounding_box.substr(bounding_box.rfind("-") + 1);
+		}
+		
 		//读取vfh特征
 		cvfh_model cvfh;//存储名称和vfh特征
 		int cvfh_idx = 1;
