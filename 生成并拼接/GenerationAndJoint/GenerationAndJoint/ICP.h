@@ -11,4 +11,4 @@
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;   //定义点云的格式
 
-Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, PointCloudT::Ptr result, PointCloudT::Ptr result_filtered, int iterations = 1);
+Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, PointCloudT::Ptr result, PointCloudT::Ptr result_filtered, int iterations = 1, bool reverse = false);

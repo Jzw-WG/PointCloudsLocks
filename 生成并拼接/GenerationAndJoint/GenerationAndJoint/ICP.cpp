@@ -1,4 +1,4 @@
-﻿#include <ICP.h>
+#include <ICP.h>
 
 bool next_iteration = false;
 bool icp_finished = false;
@@ -13,12 +13,21 @@ void print4x4Matrix(const Eigen::Matrix4f& matrix)    //打印旋转矩阵和平
     printf("t = < %6.3f, %6.3f, %6.3f >\n\n", matrix(0, 3), matrix(1, 3), matrix(2, 3));
 }
 
-Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, PointCloudT::Ptr result, PointCloudT::Ptr result_filtered, int iterations) // 默认的ICP迭代次数
+Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, PointCloudT::Ptr cloud_in_origin, PointCloudT::Ptr cloud_tar_origin, PointCloudT::Ptr result, PointCloudT::Ptr result_filtered, int iterations, bool reverse) // 默认的ICP迭代次数
 {
     // 申明点云将要使用的
     PointCloudT::Ptr cloud_tr(new PointCloudT);  // 转换后的点云
     PointCloudT::Ptr cloud_icp(new PointCloudT);  // ICP 输出点云
     PointCloudT::Ptr cloud_icp_origin(new PointCloudT);  // ICP 输出点云
+
+    if (reverse) {
+        PointCloudT::Ptr temp = cloud_in;
+        cloud_in = cloud_tar;
+        cloud_tar = temp;
+        temp = cloud_in_origin;
+        cloud_in_origin = cloud_tar_origin;
+        cloud_tar_origin = temp;
+    }
 
     pcl::console::TicToc time;     //申明时间记录
     time.tic();       //time.tic开始  time.toc结束时间
@@ -65,7 +74,14 @@ Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, 
         std::cout << "\nICP has converged, score is " << icp.getFitnessScore() << std::endl;
         std::cout << "\nICP transformation " << iterations << " : cloud_icp -> cloud_in" << std::endl;
         transformation_matrix = icp.getFinalTransformation();
-        pcl::transformPointCloud(*cloud_in_origin, *cloud_icp_origin, transformation_matrix);
+        if (reverse) {
+            pcl::transformPointCloud(*cloud_tar_origin, *cloud_icp_origin, transformation_matrix.inverse());
+            pcl::transformPointCloud(*cloud_tar, *cloud_icp, transformation_matrix);
+        }
+        else {
+            pcl::transformPointCloud(*cloud_in_origin, *cloud_icp_origin, transformation_matrix);
+        }
+        
         print4x4Matrix(transformation_matrix);
     }
     else
@@ -75,6 +91,20 @@ Eigen::Matrix4f ICPTrans(PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_tar, 
     }
     *result_filtered = *cloud_icp;
     *result = *cloud_icp_origin;
-
-    return transformation_matrix;
+    //换回原顺序
+    if (reverse) {
+        PointCloudT::Ptr temp = cloud_in;
+        cloud_in = cloud_tar;
+        cloud_tar = temp;
+        temp = cloud_in_origin;
+        cloud_in_origin = cloud_tar_origin;
+        cloud_tar_origin = temp;
+    }
+    if (reverse) {
+        return transformation_matrix.inverse();
+    }
+    else {
+        return transformation_matrix;
+    }
+    
 }

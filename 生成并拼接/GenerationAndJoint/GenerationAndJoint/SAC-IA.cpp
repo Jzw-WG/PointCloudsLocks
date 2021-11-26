@@ -1,4 +1,4 @@
-﻿#include <SAC-IA.h>
+#include <SAC-IA.h>
 
 
 
@@ -177,10 +177,19 @@ void visualizeMatch(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::
 
 
 Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::Ptr source_origin, PointCloud::Ptr target_origin,
-    PointCloud::Ptr &result, pcl::PointCloud<pcl::Normal>::Ptr source_normals, pcl::PointCloud<pcl::Normal>::Ptr target_normals)
+    PointCloud::Ptr &result, pcl::PointCloud<pcl::Normal>::Ptr source_normals, pcl::PointCloud<pcl::Normal>::Ptr target_normals, bool reverse)
 {
     clock_t start, end, time;
     start = clock();
+    
+    if (reverse) {
+        PointCloud::Ptr temp = source;
+        source = target;
+        target = temp;
+        temp = source_origin;
+        source_origin = target_origin;
+        target_origin = temp;
+    }
 
     fpfhFeature::Ptr source_fpfh(new fpfhFeature());  // fpfh特征
     fpfhFeature::Ptr target_fpfh(new fpfhFeature());
@@ -220,11 +229,32 @@ Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, Poin
 
     PointCloud::Ptr sac_ia_result(new PointCloud);
     //使用创建的变换对未过滤的输入点云进行变换
-    pcl::transformPointCloud(*source, *sac_ia_result, sac_trans);
+    if (reverse) {
+        pcl::transformPointCloud(*target, *sac_ia_result, sac_trans.inverse());
+    }
+    else {
+        pcl::transformPointCloud(*source, *sac_ia_result, sac_trans);
+    }
+
     result = sac_ia_result;
     //可视化
     visualizeMatch(source, target, sac_ia_result, cru_correspondences);
-    return sac_trans;
+    //换回原顺序
+    if (reverse) {
+        PointCloud::Ptr temp = source;
+        source = target;
+        target = temp;
+        temp = source_origin;
+        source_origin = target_origin;
+        target_origin = temp;
+    }
+    if (reverse) {
+        return sac_trans.inverse();
+    }
+    else {
+        return sac_trans;
+    }
+    
 }
 
 

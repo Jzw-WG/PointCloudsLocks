@@ -25,6 +25,6 @@ typedef pcl::PointCloud<pcl::Normal> pointnormal;
 typedef pcl::PointCloud<pcl::FPFHSignature33> fpfhFeature;
 
 Eigen::Matrix4f startSAC_IA(PointCloud::Ptr source, PointCloud::Ptr target, PointCloud::Ptr source_origin, PointCloud::Ptr target_origin,
-	PointCloud::Ptr &result, pcl::PointCloud<pcl::Normal>::Ptr source_normals, pcl::PointCloud<pcl::Normal>::Ptr target_normals);
+	PointCloud::Ptr &result, pcl::PointCloud<pcl::Normal>::Ptr source_normals, pcl::PointCloud<pcl::Normal>::Ptr target_normals, bool reverse = false);
 void eraseInfPoint(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in);
 void est_normals(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in, pcl::PointCloud<pcl::Normal>::Ptr normals, PointCloud::Ptr origin_cloud = NULL);

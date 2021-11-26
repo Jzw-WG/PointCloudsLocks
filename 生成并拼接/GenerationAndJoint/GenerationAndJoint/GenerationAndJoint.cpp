@@ -73,45 +73,77 @@ int main()
     PointCloud::Ptr result_joint_filtered(new PointCloud);
     PointCloud::Ptr origin_joint(new PointCloud);
 
+    int num = 16;
+    string dir1 = "..\\..\\..\\..\\data\\gen\\raw";
+    string dir2 = "\\handled\\";
+    string dir3 = "model\\";
+    string lockname = "lock";
+    string locktype = "3";
+    string tag = "_statistic";
+    string modeltag = "_model";
+    string suffix = ".ply";
     //加载点云
-    PointCloud::Ptr source1(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_000-3.ply", *source1);
-    sourceList.push_back(source1);
-    *origin_joint += *source1;
-    PointCloud::Ptr source2(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_045-3.ply", *source2);
-    sourceList.push_back(source2);
-    *origin_joint += *source2;
-    PointCloud::Ptr source3(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_090-3.ply", *source3);
-    sourceList.push_back(source3);
-    *origin_joint += *source3;
-    PointCloud::Ptr source4(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_135-3.ply", *source4);
-    sourceList.push_back(source4);
-    *origin_joint += *source4;
-    PointCloud::Ptr source5(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_180-3.ply", *source5);
-    sourceList.push_back(source5);
-    *origin_joint += *source5;
-    PointCloud::Ptr source6(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_225-3.ply", *source6);
-    sourceList.push_back(source6);
-    *origin_joint += *source6;
-    PointCloud::Ptr source7(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_270-3.ply", *source7);
-    sourceList.push_back(source7);
-    *origin_joint += *source7;
-    PointCloud::Ptr source8(new PointCloud);
-    pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_315-3.ply", *source8);
-    sourceList.push_back(source8);
-    *origin_joint += *source8;
+    for (size_t i = 0; i < num; i++)
+    {
+        PointCloud::Ptr source(new PointCloud);
+        
+        int lockangle = 360 * i / num;
+        stringstream ss;
+        ss << setw(3) << setfill('0') << lockangle;
+        string lockangleStr;
+        ss >> lockangleStr;
+        
+        string filename = "";
+        filename.append(lockname).append("_").append(locktype).append("_").append(lockangleStr).append(tag).append(suffix);
+        string dirname = "";
+        pcl::io::loadPLYFile(dirname.append(dir1).append(to_string(num)).append(dir2).append(filename), *source);
+        sourceList.push_back(source);
+        *origin_joint += *source;
+    }
+
+
+
+    //PointCloud::Ptr source1(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_000-3.ply", *source1);
+    //sourceList.push_back(source1);
+    //*origin_joint += *source1;
+    //PointCloud::Ptr source2(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_045-3.ply", *source2);
+    //sourceList.push_back(source2);
+    //*origin_joint += *source2;
+    //PointCloud::Ptr source3(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_090-3.ply", *source3);
+    //sourceList.push_back(source3);
+    //*origin_joint += *source3;
+    //PointCloud::Ptr source4(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_135-3.ply", *source4);
+    //sourceList.push_back(source4);
+    //*origin_joint += *source4;
+    //PointCloud::Ptr source5(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_180-3.ply", *source5);
+    //sourceList.push_back(source5);
+    //*origin_joint += *source5;
+    //PointCloud::Ptr source6(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_225-3.ply", *source6);
+    //sourceList.push_back(source6);
+    //*origin_joint += *source6;
+    //PointCloud::Ptr source7(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_270-3.ply", *source7);
+    //sourceList.push_back(source7);
+    //*origin_joint += *source7;
+    //PointCloud::Ptr source8(new PointCloud);
+    //pcl::io::loadPLYFile("..\\..\\..\\..\\data\\gen\\raw8\\handled\\lock_3_315-3.ply", *source8);
+    //sourceList.push_back(source8);
+    //*origin_joint += *source8;
     //pcl::io::loadPLYFile("..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", *target);
     //cout << "/" << endl;
     clock_t start, end, time;
     start = clock();
     for (int i = 0; i < sourceList.size(); i++)
     {
+        pcl::PointXYZ minPt, maxPt;
+        pcl::getMinMax3D(*sourceList[i], minPt, maxPt);
+        cout << "原始点云MaxX-MinX：" << maxPt.x - minPt.x << endl;
         PointCloud::Ptr source_filtered(new PointCloud);
         eraseInfPoint(sourceList[i]);
         cout << "原始点云数量：" << sourceList[i]->size() << endl;
@@ -136,6 +168,10 @@ int main()
         PointCloud::Ptr target = sourceList[i - 1];
         PointCloud::Ptr source_filtered = source_filteredList[i];
         PointCloud::Ptr target_filtered = source_filteredList[i - 1];
+        bool reverseFlag = false;
+        //if (source_filtered->size() > target_filtered->size()) {
+        //    reverseFlag = true;
+        //}
         pcl::PointCloud<pcl::Normal>::Ptr source_normals(new pcl::PointCloud<pcl::Normal>());
         pcl::PointCloud<pcl::Normal>::Ptr target_normals(new pcl::PointCloud<pcl::Normal>());
 
@@ -143,7 +179,7 @@ int main()
         Eigen::Matrix4f rot_trans;
         Eigen::Vector3f point(0, 0.1, 0.7);//根据具体模型位置设置，当前为手动测量值大致值，后续可能通过点云计算
         Eigen::Vector3f direction(0, 1, 0);//同上，交换源和目标顺序需要改变旋转方向
-        rot_trans = rot_mat(point, direction, M_PI * i / 4);
+        rot_trans = rot_mat(point, direction, 2 * M_PI * i / num);
         pcl::transformPointCloud(*source_filtered, *result_rot, rot_trans);
         pcl::transformPointCloud(*result_rot, *result_rot, icp_trans);
         pcl::transformPointCloud(*source, *source, rot_trans);
@@ -152,25 +188,30 @@ int main()
         pcl::transformPointCloud(*source_filtered, *source_filtered, icp_trans);
 
         //Eigen::Matrix4f sac_trans;
-        //sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result_sac, source_normals, target_normals);//会提取已计算的法线
+        //sac_trans = startSAC_IA(source_filtered, target_filtered, source, target, result_sac, source_normals, target_normals, reverseFlag);//会提取已计算的法线
         //pcl::transformPointCloud(*source_filtered, *result_rot, sac_trans);
         //pcl::transformPointCloud(*source, *source, sac_trans);
         //pcl::transformPointCloud(*source_filtered, *source_filtered, sac_trans);
 
         Eigen::Matrix4f pre_icp_trans = Eigen::Matrix4f::Identity();
         pre_icp_trans = icp_trans;
-        icp_trans = ICPTrans(result_rot, target_filtered, source, target, result_icp, result_icp_filtered, 100);
+        icp_trans = ICPTrans(result_rot, target_filtered, source, target, result_icp, result_icp_filtered, 200, reverseFlag);
         icp_trans = pre_icp_trans * icp_trans;
         *result_joint += *result_icp;
         *result_joint_filtered += *result_icp_filtered;
         *sourceList[i] = *result_icp;
         *source_filteredList[i] = *result_icp_filtered;
 
-        voxelFilter(result_joint, result_joint, 0.005, 0.005, 0.005);
+        //voxelFilter(result_joint, result_joint, 0.005, 0.005, 0.005);
         //visualViewer(origin_joint, result_joint);
     }
-    radiusFilter(result_joint, result_joint, 0.005, 4);
-    pcl::io::savePLYFile("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", *result_joint);
+    //radiusFilter(result_joint, result_joint, 0.005, 5);
+    //statisticalOutlierRemovalFilter(result_joint, result_joint, 20, 1);
     visualViewer(origin_joint, result_joint);
+    string modeldir = "";
+    modeldir.append(dir1).append(to_string(num)).append(dir2).append(dir3);
+    string modelname = "";
+    modelname.append(lockname).append("_").append(locktype).append(modeltag).append(suffix);
+    pcl::io::savePLYFile(modeldir.append(modelname), *result_joint);
     return 0;
 }
