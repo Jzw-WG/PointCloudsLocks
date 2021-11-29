@@ -15,7 +15,7 @@ int build(string path, vector<string> files, vector<string> model_files)
 		string filename = s.substr(iPos, s.length() - iPos);
 		string name = filename.substr(0, filename.rfind("."));
 		string suffix_str = filename.substr(filename.find_last_of('.') + 1);
-		int boxpos = filename.find("box");
+		int boxpos = filename.find(GConst::g_box);
 		string bounding_box = "";
 		string maxh_str = "";
 		string maxw_str = "";
@@ -41,6 +41,8 @@ int build(string path, vector<string> files, vector<string> model_files)
 		models.push_back(cvfh);
 		idx++;
 	}
+	//按包围盒分类，按大小过滤，加速识别速度 TODO
+
 
 	//训练数据
 	pcl::console::print_highlight("Loaded %d VFH models. Creating training data %s/%s.\n", (int)models.size(), GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());

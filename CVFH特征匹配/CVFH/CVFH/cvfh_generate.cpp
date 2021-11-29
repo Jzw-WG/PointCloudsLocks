@@ -87,7 +87,7 @@ int save_cvfh(string path, vector<string> files)
 		pcl::PointCloud<pcl::VFHSignature308>::Ptr vfhs(new pcl::PointCloud<pcl::VFHSignature308>());
 		est_vfh.compute(*vfhs);
 		//vfh文件带包围盒信息小数*10000倍
-		string vfh_filename = path + "\\" + name + "_vfh" + "_box_" + std::to_string((int)(maxh*10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
+		string vfh_filename = path + "\\" + name + "_" + GConst::g_vfh + "_" + GConst::g_box + "_" + std::to_string((int)(maxh*10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
 		pcl::io::savePCDFile(vfh_filename, *vfhs);
 
 		////显示vfh特征

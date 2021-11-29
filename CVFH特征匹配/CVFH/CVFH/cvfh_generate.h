@@ -28,6 +28,7 @@ VTK_MODULE_INIT(vtkRenderingFreeType);
 #include <pcl/keypoints/sift_keypoint.h>//sift
 #include <pcl/features/cvfh.h>    //CVFH
 #include <pcl/visualization/pcl_plotter.h>
+#include <cvfh_const.h>
 
 using namespace pcl;
 using namespace std;

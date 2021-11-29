@@ -17,6 +17,7 @@
 #include <pcl/features/cvfh.h>    //cvFH
 #include <pcl/visualization/pcl_plotter.h>//显示描述子
 #include <pcl/filters/voxel_grid.h>
+#include <cvfh_const.h>
 using namespace std;
 
 typedef std::pair<std::string, std::vector<float> > cvfh_model;//前者用于存储名称，后者用于存储vfh特征
