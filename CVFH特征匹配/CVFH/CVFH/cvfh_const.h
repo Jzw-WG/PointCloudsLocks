@@ -21,6 +21,8 @@ public:
 	static const int boxsizerange1;
 	static const int boxsizerange2;
 	static const int boxsizerange3;
+
+	static const float min_distance;
 private:
 
 };

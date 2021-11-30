@@ -15,3 +15,5 @@ const string GConst::g_box = "box";
 const int GConst::boxsizerange1 = 1000;
 const int GConst::boxsizerange2 = 1800;
 const int GConst::boxsizerange3 = 2500;
+
+const float GConst::min_distance = 0.6;

@@ -46,6 +46,14 @@ int voxelFilter1(pcl::PointCloud<pcl::PointXYZ>::Ptr inputcloud, pcl::PointCloud
 	return 0;
 }
 
+Eigen::Matrix4f translate(const float x, const float y, const float z) {
+	Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
+	transform(0, 3) = x;
+	transform(1, 3) = y;
+	transform(2, 3) = z;
+	return transform;
+}
+
 //cvfh全局特性
 int save_cvfh(string path, vector<string> files)
 {
@@ -67,6 +75,14 @@ int save_cvfh(string path, vector<string> files)
 		pcl::getMinMax3D(*cloud_in, minpt, maxpt);
 		float maxh = maxpt.y - minpt.y; //相机为水平视角时计算可用
 		float maxw = maxpt.x - minpt.x;
+		float mind = minpt.z;
+		//z方向平移使mind固定为常量（参考 Pose Estimation Technique of Scattered Pistons Based on CAD Model and Global Feaetur）(TODO：效果待测试)
+		Eigen::Matrix4f trans_mat = translate(0, 0, GConst::min_distance - mind);
+		pcl::transformPointCloud(*cloud_in, *cloud_in, trans_mat);
+		//pcl::getMinMax3D(*cloud_in, minpt, maxpt);
+		//maxh = maxpt.y - minpt.y;
+		//maxw = maxpt.x - minpt.x;
+		//mind = minpt.z;//测试查看变化
 		//估计法线
 		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
 		pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
