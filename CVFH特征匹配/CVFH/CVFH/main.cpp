@@ -4,14 +4,14 @@
 #include <cvfh_generate.h>
 #include <io.h>
 
-void getAllFiles(string path, vector<string>& files)
+void getAllFiles(string path, vector<string>& files, string nameCondition, string extention)
 {
 	//文件句柄 
 	intptr_t  hFile = 0;
 	//文件信息结构体
 	struct _finddata_t fileinfo;
 	string p;
-	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
+	if ((hFile = _findfirst(p.assign(path).append("\\*" + nameCondition + extention).c_str(), &fileinfo)) != -1)
 	{
 		do
 		{
@@ -41,10 +41,10 @@ int main(int argc, char** argv)
 	string mode = GConst::RECOGMODE;
 
 	vector<string> model_files;
-	getAllFiles(path, model_files);
+	getAllFiles(path, model_files, "", ".ply");
 
 	vector<string> vfh_files;
-	getAllFiles(vfh_path, vfh_files);
+	getAllFiles(vfh_path, vfh_files, "", ".pcd");
 
 	if (mode == GConst::BUILDMODE) {
 		build(build_path, vfh_files, model_files);
