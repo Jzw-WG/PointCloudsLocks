@@ -6,10 +6,7 @@
 #include <string>
 
 void getFileList(string strPath, vector<string>& fileList, vector<string>& ownname, string nameCondition, string extention) {
-    /*files存储文件的路径及名称(eg.   C:\Users\WUQP\Desktop\test_devided\data1.txt)
-         ownname只存储文件的名称(eg.     data1.txt)*/
-
-         //文件句柄
+    //文件句柄
     intptr_t  hFile = 0;
     //文件信息
     struct _finddata_t fileinfo;
@@ -88,6 +85,5 @@ int main(int argc, char** argv) {
 			pre_process(filenamelist[i], outputFileName + "\\" + ownname.substr(0, ownname.rfind('.')) + tag + extention);
 		}
 	}
-
 	return 0;
 }
