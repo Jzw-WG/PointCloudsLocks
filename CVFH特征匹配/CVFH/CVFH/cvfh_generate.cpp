@@ -46,7 +46,7 @@ int voxelFilter1(pcl::PointCloud<pcl::PointXYZ>::Ptr inputcloud, pcl::PointCloud
 	return 0;
 }
 
-Eigen::Matrix4f translate(const float x, const float y, const float z) {
+Eigen::Matrix4f translate1(const float x, const float y, const float z) {
 	Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
 	transform(0, 3) = x;
 	transform(1, 3) = y;
@@ -77,7 +77,7 @@ int save_cvfh(string path, vector<string> files)
 		float maxw = maxpt.x - minpt.x;
 		float mind = minpt.z;
 		//z方向平移使mind固定为常量（参考 Pose Estimation Technique of Scattered Pistons Based on CAD Model and Global Feaetur）(TODO：效果待测试)
-		Eigen::Matrix4f trans_mat = translate(0, 0, GConst::min_distance - mind);
+		Eigen::Matrix4f trans_mat = translate1(0, 0, GConst::min_distance - mind);
 		pcl::transformPointCloud(*cloud_in, *cloud_in, trans_mat);
 		//pcl::getMinMax3D(*cloud_in, minpt, maxpt);
 		//maxh = maxpt.y - minpt.y;

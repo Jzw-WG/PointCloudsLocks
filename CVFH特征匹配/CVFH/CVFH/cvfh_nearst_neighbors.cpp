@@ -64,6 +64,14 @@ int voxelFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr inputcloud, pcl::PointCloud<
 	return 0;
 }
 
+Eigen::Matrix4f translate(const float x, const float y, const float z) {
+	Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
+	transform(0, 3) = x;
+	transform(1, 3) = y;
+	transform(2, 3) = z;
+	return transform;
+}
+
 //计算vfh特征
 void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfhs, float normal_r)
 {
@@ -72,6 +80,15 @@ void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfh
 	eraseInfPoint(cloud);
 	voxelFilter(cloud, cloud, 0.005, 0.005, 0.005);
 	cout << "滤波后点云数量：" << cloud->size() << endl;
+	//获取包围盒
+	pcl::PointXYZ minpt, maxpt;
+	pcl::getMinMax3D(*cloud, minpt, maxpt);
+	float maxh = maxpt.y - minpt.y; //相机为水平视角时计算可用
+	float maxw = maxpt.x - minpt.x;
+	float mind = minpt.z;
+	//z方向平移使mind固定为常量（参考 Pose Estimation Technique of Scattered Pistons Based on CAD Model and Global Feaetur）(TODO：效果待测试)
+	Eigen::Matrix4f trans_mat = translate(0, 0, GConst::min_distance - mind);
+	pcl::transformPointCloud(*cloud, *cloud, trans_mat);
 	//估计法线
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
 	ne.setInputCloud(cloud);
