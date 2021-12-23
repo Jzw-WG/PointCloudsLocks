@@ -36,6 +36,7 @@ int main(int argc, char** argv)
 
 	string path = "..\\..\\..\\..\\data\\gen\\raw8\\model";
 	string vfh_path = path + "\\VFH";
+	string shot_path = path + "\\SHOT";
 	string build_path = path + "\\build\\";
 
 	string mode = GConst::RECOGMODE;
@@ -195,7 +196,8 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		save_cvfh(vfh_path, model_files);
+		//save_cvfh(vfh_path, model_files);
+		save_shot(shot_path, model_files);
 	}
 	
 	return 0;

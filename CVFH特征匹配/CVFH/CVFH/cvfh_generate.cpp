@@ -1,5 +1,12 @@
 ﻿#include <cvfh_generate.h>
 
+float model_ss_(7.5f); //0.01f
+float scene_ss_(20.0f);//0.03f-20
+float rf_rad_(10.0f);  //0.015f-10
+float descr_rad_(0.02f);//0.02f -19 - 
+float cg_size_(10.0f);  //0.01f-10
+float cg_thresh_(5.0f);
+
 void SplitString(const string& s, vector<string>& v, const string& c)
 {
 	string::size_type pos1, pos2;
@@ -114,5 +121,62 @@ int save_cvfh(string path, vector<string> files)
 	cout << "ok" << endl;
 	return 0;
 }
+
+//shot特征
+int save_shot(string path, vector<string> files)
+{
+	for (string s : files)
+	{
+		string::size_type iPos = s.find_last_of('\\') + 1;
+		string filename = s.substr(iPos, s.length() - iPos);
+		string name = filename.substr(0, filename.rfind("."));
+		string suffix_str = filename.substr(filename.find_last_of('.') + 1);
+		//读取点云
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::io::loadPLYFile<pcl::PointXYZ>(s, *cloud_in);
+		eraseInfPoint1(cloud_in);
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+		voxelFilter1(cloud_in, cloud_in_filtered, 0.005, 0.005, 0.005);
+		//获取包围盒
+		pcl::PointXYZ minpt, maxpt;
+		pcl::getMinMax3D(*cloud_in, minpt, maxpt);
+		float maxh = maxpt.y - minpt.y; //相机为水平视角时计算可用
+		float maxw = maxpt.x - minpt.x;
+		float mind = minpt.z;
+		//估计法线
+		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+		pcl::NormalEstimationOMP<pcl::PointXYZ, pcl::Normal> est_normal;
+		est_normal.setKSearch(16);         //设置k邻域搜索阈值为20个点
+		//est_normal.setNumberOfThreads(4);
+		est_normal.setInputCloud(cloud_in_filtered);   //设置输入模型点云
+		//est_normal.setSearchMethod(tree);
+		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+		est_normal.compute(*normals);//计算点云法线
+
+		//SHOT
+		pcl::SHOTEstimationOMP<pcl::PointXYZ, pcl::Normal, pcl::SHOT352> est_shot;
+		est_shot.setRadiusSearch(descr_rad_);
+		est_shot.setInputCloud(cloud_in_filtered);
+		est_shot.setInputNormals(normals);
+		////创建一个空的kd树表示法
+		//pcl::search::KdTree<PointXYZ>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZ>);
+		//est_shot.setSearchMethod(tree1);
+		est_shot.setSearchSurface(cloud_in_filtered);
+		//输出的数据集
+		pcl::PointCloud<pcl::SHOT352>::Ptr shots(new pcl::PointCloud<pcl::SHOT352>());
+		est_shot.compute(*shots);
+		//shot文件带包围盒信息小数*10000倍
+		string shot_filename = path + "\\" + name + "_" + GConst::g_shot + "_" + GConst::g_box + "_" + std::to_string((int)(maxh * 10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
+		pcl::io::savePCDFile(shot_filename, *shots);
+
+		////显示shot特征
+		//pcl::visualization::PCLPlotter plotter;
+		//plotter.addFeatureHistogram<pcl::SHOT352>(*shots, GConst::g_shot, 0);
+		//plotter.plot();
+	}
+	cout << "ok" << endl;
+	return 0;
+}
+
 
 

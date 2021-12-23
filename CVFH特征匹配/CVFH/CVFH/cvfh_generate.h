@@ -21,6 +21,8 @@ VTK_MODULE_INIT(vtkRenderingFreeType);
 #include <pcl/point_types.h>
 #include <pcl/common/io.h>
 #include <pcl/features/normal_3d.h>
+#include <pcl/features/normal_3d_omp.h>
+#include <pcl/features/shot_omp.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/console/time.h>
@@ -35,3 +37,4 @@ using namespace pcl;
 using namespace std;
 
 int save_cvfh(string path, vector<string> files);
+int save_shot(string path, vector<string> files);

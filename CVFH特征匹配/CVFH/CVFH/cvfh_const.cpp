@@ -10,6 +10,7 @@ const string GConst::training_data_h5_file_name = "training_data.h5";
 const string GConst::training_data_list_file_name = "training_data.list";
 
 const string GConst::g_vfh = "vfh";
+const string GConst::g_shot = "shot";
 const string GConst::g_box = "box";
 
 const int GConst::boxsizerange1 = 1000;
