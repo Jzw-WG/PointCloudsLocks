@@ -66,7 +66,7 @@ int main(int argc, char** argv)
 		//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", cvfhs);
 		pcl::visualization::PCLPlotter plotter;
 		plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, "vfh", 0);
-		cvfh_model  histogram;//存储名称和vfh特征
+		feature_model  histogram;//存储名称和vfh特征
 		int cvfh_idx = 1;
 		histogram.second.resize(308);
 		histogram.first = "target_vfh";
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 			histogram.second[j] = cvfhs.points[0].histogram[j];
 		}
 
-		std::vector<cvfh_model> models;
+		std::vector<feature_model> models;
 		flann::Matrix<int> k_indices;
 		flann::Matrix<float> k_distances;
 		flann::Matrix<float> data;

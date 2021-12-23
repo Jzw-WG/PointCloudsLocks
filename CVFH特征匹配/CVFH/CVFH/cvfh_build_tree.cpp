@@ -1,4 +1,4 @@
-﻿#include <cvfh_build_tree.h>
+#include <cvfh_build_tree.h>
 
 using namespace std;
 //根据vfh特征数据，生成kd_tree，即建立模板库
@@ -6,7 +6,7 @@ using namespace std;
 int build(string path, vector<string> files, vector<string> model_files)
 {
 	//加载vfh特征
-	std::vector<cvfh_model> models;
+	std::vector<feature_model> models;
 	int idx = 0;
 	for (string s : files)
 	{
@@ -26,7 +26,7 @@ int build(string path, vector<string> files, vector<string> model_files)
 		}
 		
 		//读取vfh特征
-		cvfh_model cvfh;//存储名称和vfh特征
+		feature_model cvfh;//存储名称和vfh特征
 		int cvfh_idx = 1;
 		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
 		pcl::io::loadPCDFile<pcl::VFHSignature308>(s, cvfhs);

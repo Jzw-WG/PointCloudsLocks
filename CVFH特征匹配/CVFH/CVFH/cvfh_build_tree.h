@@ -14,6 +14,6 @@ VTK_MODULE_INIT(vtkInteractionStyle);
 #include <fstream>
 #include <cvfh_const.h>
 
-typedef std::pair<std::string, std::vector<float> > cvfh_model;//一个用于存储名称，一个用于存储vrf特征
+typedef std::pair<std::string, std::vector<float> > feature_model;//一个用于存储名称，一个用于存储特征
 
 int build(std::string path, std::vector<std::string> files, std::vector<std::string> model_files);

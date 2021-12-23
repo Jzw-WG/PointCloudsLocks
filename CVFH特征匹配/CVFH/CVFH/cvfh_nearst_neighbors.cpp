@@ -1,7 +1,7 @@
 ﻿#include <cvfh_nearst_neighbors.h>
 
 //k近邻搜素
-void nearestKSearch(flann::Index<flann::ChiSquareDistance<float> >& index, const cvfh_model& model, int k, flann::Matrix<int>& indices, flann::Matrix<float>& distances)
+void nearestKSearch(flann::Index<flann::ChiSquareDistance<float> >& index, const feature_model& model, int k, flann::Matrix<int>& indices, flann::Matrix<float>& distances)
 {
 	// Query point
 	flann::Matrix<float> p = flann::Matrix<float>(new float[model.second.size()], 1, model.second.size());
@@ -13,7 +13,7 @@ void nearestKSearch(flann::Index<flann::ChiSquareDistance<float> >& index, const
 	delete[] p.ptr();
 }
 //从.list文件中加载各模型名称
-bool loadFileList(std::vector<cvfh_model>& models, const std::string& filename)
+bool loadFileList(std::vector<feature_model>& models, const std::string& filename)
 {
 	ifstream fs;
 	fs.open(filename.c_str());
@@ -26,7 +26,7 @@ bool loadFileList(std::vector<cvfh_model>& models, const std::string& filename)
 		getline(fs, line);
 		if (line.empty())
 			continue;
-		cvfh_model m;
+		feature_model m;
 		m.first = line;
 		models.push_back(m);
 	}
