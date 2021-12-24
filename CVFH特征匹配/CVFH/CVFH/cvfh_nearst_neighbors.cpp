@@ -107,3 +107,38 @@ void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfh
 	cvfh.setSearchMethod(tree1);
 	cvfh.compute(vfhs);
 }
+
+//计算shot特征
+void calcuate_shot(const string name, pcl::PointCloud<pcl::SHOT352>& shots, float radius)
+{
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::io::loadPLYFile<pcl::PointXYZ>(name, *cloud);
+	eraseInfPoint(cloud);
+	voxelFilter(cloud, cloud, 0.005, 0.005, 0.005);
+	cout << "滤波后点云数量：" << cloud->size() << endl;
+	//获取包围盒
+	pcl::PointXYZ minpt, maxpt;
+	pcl::getMinMax3D(*cloud, minpt, maxpt);
+	float maxh = maxpt.y - minpt.y; //相机为水平视角时计算可用
+	float maxw = maxpt.x - minpt.x;
+	float mind = minpt.z;
+	//估计法线
+	pcl::NormalEstimationOMP<pcl::PointXYZ, pcl::Normal> ne;
+	ne.setInputCloud(cloud);
+	//pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+	//ne.setSearchMethod(tree);
+	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+	ne.setKSearch(16);	//使用半径在查询点周围0.65范围内的所有邻元素
+	ne.compute(*cloud_normals);
+
+	//SHOT
+	pcl::SHOTEstimationOMP<pcl::PointXYZ, pcl::Normal, pcl::SHOT352> shot;
+	shot.setRadiusSearch(radius);
+	shot.setInputCloud(cloud);
+	shot.setInputNormals(cloud_normals);
+	shot.setSearchSurface(cloud);
+	////创建一个空的kd树表示法
+	//pcl::search::KdTree<pcl::PointXYZ>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZ>);
+	//shot.setSearchMethod(tree1);
+	shot.compute(shots);
+}
