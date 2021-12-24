@@ -37,18 +37,43 @@ int main(int argc, char** argv)
 	string path = "..\\..\\..\\..\\data\\gen\\raw8\\model";
 	string vfh_path = path + "\\VFH";
 	string shot_path = path + "\\SHOT";
-	string build_path = path + "\\build\\";
+	string vfh_build_path = path + "\\vfh_build\\";
+	string shot_build_path = path + "\\shot_build\\";
+	
+	//parameter
+	string feature_name = GConst::g_shot;
+	string mode = GConst::BUILDMODE;
 
-	string mode = GConst::RECOGMODE;
-
+	string build_path = "";
+	string feature_path = "";
+	if (feature_name == GConst::g_shot) {
+		build_path = shot_build_path;
+		feature_path = shot_path;
+	}
+	else if (feature_name == GConst::g_vfh) {
+		build_path = vfh_build_path;
+		feature_path = vfh_path;
+	}
+	else {
+		build_path = vfh_build_path;
+		feature_path = vfh_path;
+	}
 	vector<string> model_files;
 	getAllFiles(path, model_files, "", ".ply");
 
-	vector<string> vfh_files;
-	getAllFiles(vfh_path, vfh_files, "", ".pcd");
+	vector<string> feature_files;
+	getAllFiles(feature_path, feature_files, "", ".pcd");
 
 	if (mode == GConst::BUILDMODE) {
-		build(build_path, vfh_files, model_files);
+		if (feature_name == GConst::g_shot) {
+			shot_model_build(build_path, feature_files, model_files);
+		}
+		else if (feature_name == GConst::g_vfh) {
+			cvfh_model_build(build_path, feature_files, model_files);
+		}
+		else {
+			cvfh_model_build(build_path, feature_files, model_files);
+		}
 	}
 	else if (mode == GConst::RECOGMODE) {
 		int k = 6;//要显示的数量
@@ -196,8 +221,15 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		//save_cvfh(vfh_path, model_files);
-		save_shot(shot_path, model_files);
+		if (feature_name == GConst::g_shot) {
+			save_shot(feature_path, model_files);
+		}
+		else if (feature_name == GConst::g_vfh) {
+			save_cvfh(feature_path, model_files);
+		}
+		else {
+			save_cvfh(feature_path, model_files);
+		}
 	}
 	
 	return 0;
