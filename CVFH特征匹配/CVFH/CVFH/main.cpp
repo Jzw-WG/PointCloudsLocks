@@ -41,8 +41,8 @@ int main(int argc, char** argv)
 	string shot_build_path = path + "\\shot_build\\";
 	
 	//parameter
-	string feature_name = GConst::g_shot;
-	string mode = GConst::BUILDMODE;
+	//string feature_name = GConst::g_shot;
+	string feature_name = GConst::g_vfh;
 
 	string build_path = "";
 	string feature_path = "";
@@ -71,25 +71,49 @@ int main(int argc, char** argv)
 		int k = 6;//要显示的数量
 		double thresh = DBL_MAX;// 设置一个相似度阈值，不满足阈值的会被区别显示。默认无阈值
 		//thresh = 200.0;
-
-		//加载或者计算目标vfh特性
-		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
-		//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
-
-		calcuate_cvfh("..\\..\\..\\..\\data\\gen\\handled\\lock_3_000-3.ply", cvfhs);
-		//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", cvfhs);
-		//calcuate_cvfh("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", cvfhs);
-		//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", cvfhs);
-		//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", cvfhs);
 		pcl::visualization::PCLPlotter plotter;
-		plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, "vfh", 0);
-		feature_model  histogram;//存储名称和vfh特征
-		int cvfh_idx = 1;
-		histogram.second.resize(308);
-		histogram.first = "target_vfh";
-		for (size_t j = 0; j < 308; j++)
-		{
-			histogram.second[j] = cvfhs.points[0].histogram[j];
+		feature_model feature_descriptor;
+		if (feature_name == GConst::g_shot) {
+			//加载或者计算目标vfh特性
+			pcl::PointCloud<pcl::SHOT352> shots;
+			//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
+
+			calcuate_shot("..\\..\\..\\..\\data\\gen\\scene\\handled\\lock_3_000_statistic.ply", shots);
+			//calcuate_shot("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", shots);
+			//calcuate_shot("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", shots);
+			//calcuate_shot("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", shots);
+			//calcuate_shot("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", shots);
+			plotter.addFeatureHistogram<pcl::SHOT352>(shots, GConst::g_shot, 0);
+			feature_model  descriptor;//存储名称和shot特征
+			int cvfh_idx = 1;
+			descriptor.second.resize(352);
+			descriptor.first = "target_shot";
+			for (size_t j = 0; j < 352; j++)
+			{
+				descriptor.second[j] = shots.points[0].descriptor[j];
+			}
+			feature_descriptor = descriptor;
+		}
+		else if (feature_name == GConst::g_vfh) {
+			//加载或者计算目标vfh特性
+			pcl::PointCloud<pcl::VFHSignature308> cvfhs;
+			//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
+
+			calcuate_cvfh("..\\..\\..\\..\\data\\gen\\scene\\handled\\lock_3_000_statistic.ply", cvfhs);
+			//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", cvfhs);
+			//calcuate_cvfh("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", cvfhs);
+			//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", cvfhs);
+			//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", cvfhs);
+			plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, GConst::g_vfh, 0);
+			feature_model  histogram;//存储名称和vfh特征
+			int cvfh_idx = 1;
+			histogram.second.resize(308);
+			histogram.first = "target_vfh";
+			for (size_t j = 0; j < 308; j++)
+			{
+				histogram.second[j] = cvfhs.points[0].histogram[j];
+			}
+			feature_descriptor = histogram;
 		}
 
 		std::vector<feature_model> models;
@@ -121,7 +145,7 @@ int main(int argc, char** argv)
 		{
 			flann::Index<flann::ChiSquareDistance<float> > index(data, flann::SavedIndexParams(build_path + GConst::kdtree_idx_file_name));
 			index.buildIndex();
-			nearestKSearch(index, histogram, k, k_indices, k_distances);
+			nearestKSearch(index, feature_descriptor, k, k_indices, k_distances);
 		}
 
 		// 屏幕上近邻结果
@@ -131,7 +155,7 @@ int main(int argc, char** argv)
 
 
 		//多个视图显示结果
-		pcl::visualization::PCLVisualizer viewer("VFH Cluster Classifier");
+		pcl::visualization::PCLVisualizer viewer("Feature Cluster Classifier");
 		int viewport = 0, l = 0, m = 0;
 		//显示布局
 		int y_s = (int)floor(sqrt((double)k));
