@@ -65,15 +65,7 @@ int main(int argc, char** argv)
 	getAllFiles(feature_path, feature_files, "", ".pcd");
 
 	if (mode == GConst::BUILDMODE) {
-		if (feature_name == GConst::g_shot) {
-			shot_model_build(build_path, feature_files, model_files);
-		}
-		else if (feature_name == GConst::g_vfh) {
-			cvfh_model_build(build_path, feature_files, model_files);
-		}
-		else {
-			cvfh_model_build(build_path, feature_files, model_files);
-		}
+		feature_model_build(build_path, feature_files, model_files, feature_name);
 	}
 	else if (mode == GConst::RECOGMODE) {
 		int k = 6;//要显示的数量

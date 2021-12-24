@@ -151,3 +151,13 @@ int shot_model_build(string path, vector<string> files, vector<string> model_fil
 	system("pause");
 	return 0;
 }
+
+int feature_model_build(string path, vector<string> files, vector<string> model_files, string feature_name) {
+	if (feature_name == GConst::g_shot) {
+		return shot_model_build(path, files, model_files);
+	}
+	else if (feature_name == GConst::g_vfh) {
+		return cvfh_model_build(path, files, model_files);
+	}
+	return -1;
+}
