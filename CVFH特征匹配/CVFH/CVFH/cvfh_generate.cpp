@@ -178,5 +178,14 @@ int save_shot(string path, vector<string> files)
 	return 0;
 }
 
+int save_feature(string path, vector<string> files, string feature_name) {
+	if (feature_name == GConst::g_shot) {
+		return save_shot(path, files);
+	}
+	else if (feature_name == GConst::g_vfh) {
+		return save_cvfh(path, files);
+	}
+	return -1;
+}
 
 

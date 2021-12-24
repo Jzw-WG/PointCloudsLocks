@@ -221,15 +221,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		if (feature_name == GConst::g_shot) {
-			save_shot(feature_path, model_files);
-		}
-		else if (feature_name == GConst::g_vfh) {
-			save_cvfh(feature_path, model_files);
-		}
-		else {
-			save_cvfh(feature_path, model_files);
-		}
+		save_feature(feature_path, model_files, feature_name);
 	}
 	
 	return 0;

@@ -38,3 +38,4 @@ using namespace std;
 
 int save_cvfh(string path, vector<string> files);
 int save_shot(string path, vector<string> files);
+int save_feature(string path, vector<string> files, string feature_name = GConst::g_vfh);
