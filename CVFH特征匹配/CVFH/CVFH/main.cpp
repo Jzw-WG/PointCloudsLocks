@@ -31,18 +31,19 @@ void getAllFiles(string path, vector<string>& files, string nameCondition, strin
 int main(int argc, char** argv)
 {
 	/*string path = "..\\..\\..\\..\\data\\gen\\model";
-	string vfh_path = path + "\\VFH";
+	string cvfh_path = path + "\\CVFH";
 	string build_path = path + "\\build\\";*/
 
 	string path = "..\\..\\..\\..\\data\\gen\\raw8\\model";
-	string vfh_path = path + "\\VFH";
+	string cvfh_path = path + "\\CVFH";
 	string shot_path = path + "\\SHOT";
-	string vfh_build_path = path + "\\vfh_build\\";
+	string cvfh_build_path = path + "\\cvfh_build\\";
 	string shot_build_path = path + "\\shot_build\\";
 	
 	//parameter
 	//string feature_name = GConst::g_shot;
-	string feature_name = GConst::g_vfh;
+	string feature_name = GConst::g_cvfh;
+	string mode = GConst::GENMODE;
 
 	string build_path = "";
 	string feature_path = "";
@@ -50,13 +51,13 @@ int main(int argc, char** argv)
 		build_path = shot_build_path;
 		feature_path = shot_path;
 	}
-	else if (feature_name == GConst::g_vfh) {
-		build_path = vfh_build_path;
-		feature_path = vfh_path;
+	else if (feature_name == GConst::g_cvfh) {
+		build_path = cvfh_build_path;
+		feature_path = cvfh_path;
 	}
 	else {
-		build_path = vfh_build_path;
-		feature_path = vfh_path;
+		build_path = cvfh_build_path;
+		feature_path = cvfh_path;
 	}
 	vector<string> model_files;
 	getAllFiles(path, model_files, "", ".ply");
@@ -74,7 +75,7 @@ int main(int argc, char** argv)
 		pcl::visualization::PCLPlotter plotter;
 		feature_model feature_descriptor;
 		if (feature_name == GConst::g_shot) {
-			//加载或者计算目标vfh特性
+			//加载或者计算目标shot特性
 			pcl::PointCloud<pcl::SHOT352> shots;
 			//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
 
@@ -94,8 +95,8 @@ int main(int argc, char** argv)
 			}
 			feature_descriptor = descriptor;
 		}
-		else if (feature_name == GConst::g_vfh) {
-			//加载或者计算目标vfh特性
+		else if (feature_name == GConst::g_cvfh) {
+			//加载或者计算目标cvfh特性
 			pcl::PointCloud<pcl::VFHSignature308> cvfhs;
 			//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
 
@@ -104,8 +105,8 @@ int main(int argc, char** argv)
 			//calcuate_cvfh("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", cvfhs);
 			//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", cvfhs);
 			//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", cvfhs);
-			plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, GConst::g_vfh, 0);
-			feature_model  histogram;//存储名称和vfh特征
+			plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, GConst::g_cvfh, 0);
+			feature_model  histogram;//存储名称和cvfh特征
 			int cvfh_idx = 1;
 			histogram.second.resize(308);
 			histogram.first = "target_vfh";
@@ -132,7 +133,7 @@ int main(int argc, char** argv)
 		{
 			loadFileList(models, build_path + GConst::training_data_list_file_name);
 			flann::load_from_file(data, build_path + GConst::training_data_h5_file_name, "training_data");
-			pcl::console::print_highlight("Training data found. Loaded %d VFH models from %s/%s.\n",
+			pcl::console::print_highlight("Training data found. Loaded %d CVFH models from %s/%s.\n",
 				(int)data.rows, GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
 		}
 		//进行k近邻搜索

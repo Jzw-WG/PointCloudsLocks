@@ -72,8 +72,8 @@ Eigen::Matrix4f translate(const float x, const float y, const float z) {
 	return transform;
 }
 
-//计算vfh特征
-void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfhs, float normal_r)
+//计算cvfh特征
+void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& cvfhs, float normal_r)
 {
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::io::loadPLYFile<pcl::PointXYZ>(name, *cloud);
@@ -98,14 +98,14 @@ void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfh
 	ne.setKSearch(16);	//使用半径在查询点周围0.65范围内的所有邻元素
 	ne.compute(*cloud_normals);
 
-	//VFH
+	//CVFH
 	pcl::CVFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> cvfh;
 	cvfh.setInputCloud(cloud);
 	cvfh.setInputNormals(cloud_normals);
 	//创建一个空的kd树表示法
 	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZ>);
 	cvfh.setSearchMethod(tree1);
-	cvfh.compute(vfhs);
+	cvfh.compute(cvfhs);
 }
 
 //计算shot特征

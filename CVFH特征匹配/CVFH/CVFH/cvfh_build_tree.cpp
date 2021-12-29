@@ -1,16 +1,16 @@
 ﻿#include <cvfh_build_tree.h>
 
 using namespace std;
-//根据vfh特征数据，生成kd_tree，即建立模板库
-//其中vfhData文件夹下的.pcd文件储存了vfh特征和xyz格式的模板点云数据
+//根据cvfh特征数据，生成kd_tree，即建立模板库
+//其中CVFH文件夹下的.pcd文件储存了cvfh特征和xyz格式的模板点云数据
 int cvfh_model_build(string path, vector<string> files, vector<string> model_files)
 {
-	//加载vfh特征
+	//加载cvfh特征
 	std::vector<feature_model> models;
 	int idx = 0;
 	for (string s : files)
 	{
-		//找到vfh文件中的包围盒信息
+		//找到cvfh文件中的包围盒信息
 		string::size_type iPos = s.find_last_of('\\') + 1;
 		string filename = s.substr(iPos, s.length() - iPos);
 		string name = filename.substr(0, filename.rfind("."));
@@ -25,14 +25,14 @@ int cvfh_model_build(string path, vector<string> files, vector<string> model_fil
 			maxw_str = bounding_box.substr(bounding_box.rfind("-") + 1);
 		}
 		
-		//读取vfh特征
+		//读取cvfh特征
 		feature_model cvfh;//存储名称和特征
 		int cvfh_idx = 1;
 		pcl::PointCloud<pcl::VFHSignature308> cvfhs;
 		pcl::io::loadPCDFile<pcl::VFHSignature308>(s, cvfhs);
 		cvfh.second.resize(308);
 
-		//将vfh信息存入vector容器
+		//将cvfh信息存入vector容器
 		cvfh.first = model_files[idx];
 		for (size_t j = 0; j < 308; j++)
 		{
@@ -45,7 +45,7 @@ int cvfh_model_build(string path, vector<string> files, vector<string> model_fil
 
 
 	//训练数据
-	pcl::console::print_highlight("Loaded %d VFH models. Creating training data %s/%s.\n", (int)models.size(), GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
+	pcl::console::print_highlight("Loaded %d CVFH models. Creating training data %s/%s.\n", (int)models.size(), GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
 
 	//转化数据为FLANN格式
 	flann::Matrix<float> data(new float[models.size() * models[0].second.size()], models.size(), models[0].second.size());
@@ -76,8 +76,8 @@ int cvfh_model_build(string path, vector<string> files, vector<string> model_fil
 	return 0;
 }
 
-//根据vfh特征数据，生成kd_tree，即建立模板库
-//其中vfhData文件夹下的.pcd文件储存了vfh特征和xyz格式的模板点云数据
+//根据shot特征数据，生成kd_tree，即建立模板库
+//其中SHOT文件夹下的.pcd文件储存了shot特征和xyz格式的模板点云数据
 int shot_model_build(string path, vector<string> files, vector<string> model_files)
 {
 	//加载shot特征
@@ -85,7 +85,7 @@ int shot_model_build(string path, vector<string> files, vector<string> model_fil
 	int idx = 0;
 	for (string s : files)
 	{
-		//找到vfh文件中的包围盒信息
+		//找到shot文件中的包围盒信息
 		string::size_type iPos = s.find_last_of('\\') + 1;
 		string filename = s.substr(iPos, s.length() - iPos);
 		string name = filename.substr(0, filename.rfind("."));
@@ -156,7 +156,7 @@ int feature_model_build(string path, vector<string> files, vector<string> model_
 	if (feature_name == GConst::g_shot) {
 		return shot_model_build(path, files, model_files);
 	}
-	else if (feature_name == GConst::g_vfh) {
+	else if (feature_name == GConst::g_cvfh) {
 		return cvfh_model_build(path, files, model_files);
 	}
 	return -1;

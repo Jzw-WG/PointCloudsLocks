@@ -99,23 +99,23 @@ int save_cvfh(string path, vector<string> files)
 		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 		est_normal.compute(*normals);//计算点云法线
 
-		//VFH
-		pcl::CVFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> est_vfh;
-		est_vfh.setInputCloud(cloud_in);
-		est_vfh.setInputNormals(normals);
+		//CVFH
+		pcl::CVFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> est_cvfh;
+		est_cvfh.setInputCloud(cloud_in);
+		est_cvfh.setInputNormals(normals);
 		//创建一个空的kd树表示法
 		pcl::search::KdTree<PointXYZ>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZ>);
-		est_vfh.setSearchMethod(tree1);
+		est_cvfh.setSearchMethod(tree1);
 		//输出的数据集
-		pcl::PointCloud<pcl::VFHSignature308>::Ptr vfhs(new pcl::PointCloud<pcl::VFHSignature308>());
-		est_vfh.compute(*vfhs);
-		////显示vfh特征
+		pcl::PointCloud<pcl::VFHSignature308>::Ptr cvfhs(new pcl::PointCloud<pcl::VFHSignature308>());
+		est_cvfh.compute(*cvfhs);
+		////显示cvfh特征
 		//pcl::visualization::PCLPlotter plotter;
-		//plotter.addFeatureHistogram<pcl::VFHSignature308>(*vfhs, "vfh", 0);
+		//plotter.addFeatureHistogram<pcl::VFHSignature308>(*cvfhs, GConst::g_cvfh, 0);
 		//plotter.plot();
-		//vfh文件带包围盒信息小数*10000倍
-		string vfh_filename = path + "\\" + name + "_" + GConst::g_vfh + "_" + GConst::g_box + "_" + std::to_string((int)(maxh*10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
-		pcl::io::savePCDFile(vfh_filename, *vfhs);
+		//cvfh文件带包围盒信息小数*10000倍
+		string cvfh_filename = path + "\\" + name + "_" + GConst::g_cvfh + "_" + GConst::g_box + "_" + std::to_string((int)(maxh*10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
+		pcl::io::savePCDFile(cvfh_filename, *cvfhs);
 	}
 	cout << "ok" << endl;
 	return 0;
@@ -180,7 +180,7 @@ int save_feature(string path, vector<string> files, string feature_name) {
 	if (feature_name == GConst::g_shot) {
 		return save_shot(path, files);
 	}
-	else if (feature_name == GConst::g_vfh) {
+	else if (feature_name == GConst::g_cvfh) {
 		return save_cvfh(path, files);
 	}
 	return -1;

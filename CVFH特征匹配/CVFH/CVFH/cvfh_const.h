@@ -15,7 +15,7 @@ public:
 	static const std::string training_data_h5_file_name;
 	static const std::string training_data_list_file_name;
 
-	static const std::string g_vfh;
+	static const std::string g_cvfh;
 	static const std::string g_shot;
 	static const std::string g_box;
 

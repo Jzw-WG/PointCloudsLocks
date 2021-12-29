@@ -22,9 +22,9 @@
 #include <cvfh_const.h>
 using namespace std;
 
-typedef std::pair<std::string, std::vector<float> > feature_model;//前者用于存储名称，后者用于存储vfh特征
+typedef std::pair<std::string, std::vector<float> > feature_model;//前者用于存储名称，后者用于存储特征描述符
 
 void nearestKSearch(flann::Index<flann::ChiSquareDistance<float> >& index, const feature_model& model, int k, flann::Matrix<int>& indices, flann::Matrix<float>& distances);
 bool loadFileList(std::vector<feature_model>& models, const std::string& filename);
-void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfhs, float normal_r = 0.6);
+void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& cvfhs, float normal_r = 0.6);
 void calcuate_shot(const string name, pcl::PointCloud<pcl::SHOT352>& shots, float radius = 0.02);
