@@ -92,6 +92,7 @@ void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& cvf
 	//估计法线
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
 	ne.setInputCloud(cloud);
+	//ne.setRadiusSearch(normal_r);
 	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
 	ne.setSearchMethod(tree);
 	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
