@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 			//calcuate_shot("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", shots);
 			//calcuate_shot("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", shots);
 			//calcuate_shot("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", shots);
-			plotter.addFeatureHistogram<pcl::SHOT352>(shots, GConst::g_shot, 0);
+			plotter.addFeatureHistogram<pcl::SHOT352>(shots, "shot", 0);
 			feature_model  descriptor;//存储名称和shot特征
 			int cvfh_idx = 1;
 			descriptor.second.resize(352);
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 			//calcuate_cvfh("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", cvfhs);
 			//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", cvfhs);
 			//calcuate_cvfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", cvfhs);
-			plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, GConst::g_cvfh, 0);
+			plotter.addFeatureHistogram<pcl::VFHSignature308>(cvfhs, "vfh", 0);
 			feature_model  histogram;//存储名称和cvfh特征
 			int cvfh_idx = 1;
 			histogram.second.resize(308);
@@ -233,7 +233,7 @@ int main(int argc, char** argv)
 			viewer.addText(cloud_name, 20, 10, cloud_name, viewport);
 		}
 		viewer.setCameraPosition(0, -30, 0, 0, 0, 0, 0, 0, 1, 0);//视角
-		plotter.plot();//显示cvfh特征
+		plotter.plot();//显示特征
 		viewer.spin();
 	}
 	else

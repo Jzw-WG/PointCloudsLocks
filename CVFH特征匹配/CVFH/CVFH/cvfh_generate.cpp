@@ -1,4 +1,4 @@
-﻿#include <cvfh_generate.h>
+#include <cvfh_generate.h>
 
 float model_ss_(7.5f); //0.01f
 float scene_ss_(20.0f);//0.03f-20
@@ -111,7 +111,7 @@ int save_cvfh(string path, vector<string> files)
 		est_cvfh.compute(*cvfhs);
 		////显示cvfh特征
 		//pcl::visualization::PCLPlotter plotter;
-		//plotter.addFeatureHistogram<pcl::VFHSignature308>(*cvfhs, GConst::g_cvfh, 0);
+		//plotter.addFeatureHistogram<pcl::VFHSignature308>(*cvfhs, "vfh", 0);
 		//plotter.plot();
 		//cvfh文件带包围盒信息小数*10000倍
 		string cvfh_filename = path + "\\" + name + "_" + GConst::g_cvfh + "_" + GConst::g_box + "_" + std::to_string((int)(maxh*10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
@@ -166,7 +166,7 @@ int save_shot(string path, vector<string> files)
 		est_shot.compute(*shots);
 		////显示shot特征
 		//pcl::visualization::PCLPlotter plotter;
-		//plotter.addFeatureHistogram<pcl::SHOT352>(*shots, GConst::g_shot, 0);
+		//plotter.addFeatureHistogram<pcl::SHOT352>(*shots, "shot", 0);
 		//plotter.plot();
 		//shot文件带包围盒信息小数*10000倍
 		string shot_filename = path + "\\" + name + "_" + GConst::g_shot + "_" + GConst::g_box + "_" + std::to_string((int)(maxh * 10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
