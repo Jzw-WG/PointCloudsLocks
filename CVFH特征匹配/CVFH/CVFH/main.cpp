@@ -36,8 +36,10 @@ int main(int argc, char** argv)
 
 	string path = "..\\..\\..\\..\\data\\gen\\raw8\\model";
 	string cvfh_path = path + "\\CVFH";
+	string vfh_path = path + "\\VFH";
 	string shot_path = path + "\\SHOT";
 	string cvfh_build_path = path + "\\cvfh_build\\";
+	string vfh_build_path = path + "\\vfh_build\\";
 	string shot_build_path = path + "\\shot_build\\";
 	
 	//parameter
@@ -54,6 +56,10 @@ int main(int argc, char** argv)
 	else if (feature_name == GConst::g_cvfh) {
 		build_path = cvfh_build_path;
 		feature_path = cvfh_path;
+	}
+	else if (feature_name == GConst::g_vfh) {
+		build_path = vfh_build_path;
+		feature_path = vfh_path;
 	}
 	else {
 		build_path = cvfh_build_path;
@@ -98,7 +104,7 @@ int main(int argc, char** argv)
 		else if (feature_name == GConst::g_cvfh) {
 			//加载或者计算目标cvfh特性
 			pcl::PointCloud<pcl::VFHSignature308> cvfhs;
-			//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", cvfhs);
+			//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_cvfh1.pcd", cvfhs);
 
 			calcuate_cvfh("..\\..\\..\\..\\data\\gen\\scene\\handled\\lock_3_000_statistic.ply", cvfhs);
 			//calcuate_cvfh("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", cvfhs);
@@ -109,10 +115,31 @@ int main(int argc, char** argv)
 			feature_model  histogram;//存储名称和cvfh特征
 			int cvfh_idx = 1;
 			histogram.second.resize(308);
-			histogram.first = "target_vfh";
+			histogram.first = "target_cvfh";
 			for (size_t j = 0; j < 308; j++)
 			{
 				histogram.second[j] = cvfhs.points[0].histogram[j];
+			}
+			feature_descriptor = histogram;
+		}
+		else if (feature_name == GConst::g_vfh) {
+			//加载或者计算目标vfh特性
+			pcl::PointCloud<pcl::VFHSignature308> vfhs;
+			//pcl::io::loadPCDFile<pcl::VFHSignature308>("test_vfh1.pcd", vfhs);
+
+			calcuate_vfh("..\\..\\..\\..\\data\\gen\\scene\\handled\\lock_2_090-3_nd.ply", vfhs);
+			//calcuate_vfh("..\\..\\..\\..\\data\\gen\\model\\lock_1_model.ply", vfhs);
+			//calcuate_vfh("..\\..\\..\\..\\data\\dragon\\dragon_up\\dragonUpRight_0.ply", vfhs);
+			//calcuate_vfh("..\\..\\..\\..\\data\\bunny\\data\\bun090.ply", vfhs);
+			//calcuate_vfh("..\\..\\..\\..\\data\\bunny\\reconstruction\\bun_zipper.ply", vfhs);
+			plotter.addFeatureHistogram<pcl::VFHSignature308>(vfhs, "vfh", 0);
+			feature_model  histogram;//存储名称和vfh特征
+			int vfh_idx = 1;
+			histogram.second.resize(308);
+			histogram.first = "target_vfh";
+			for (size_t j = 0; j < 308; j++)
+			{
+				histogram.second[j] = vfhs.points[0].histogram[j];
 			}
 			feature_descriptor = histogram;
 		}

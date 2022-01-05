@@ -1,4 +1,4 @@
-#include <cvfh_generate.h>
+﻿#include <cvfh_generate.h>
 
 float model_ss_(7.5f); //0.01f
 float scene_ss_(20.0f);//0.03f-20
@@ -121,6 +121,66 @@ int save_cvfh(string path, vector<string> files)
 	return 0;
 }
 
+//vfh全局特性
+int save_vfh(string path, vector<string> files)
+{
+	for (string s : files)
+	{
+		string::size_type iPos = s.find_last_of('\\') + 1;
+		string filename = s.substr(iPos, s.length() - iPos);
+		string name = filename.substr(0, filename.rfind("."));
+		string suffix_str = filename.substr(filename.find_last_of('.') + 1);
+		//vector<string> v;
+		//SplitString(filename, v, ".ply");
+		//读取点云
+		pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::io::loadPLYFile<pcl::PointXYZ>(s, *cloud_in);
+		eraseInfPoint1(cloud_in);
+		voxelFilter1(cloud_in, cloud_in, 0.005, 0.005, 0.005);
+		//获取包围盒
+		pcl::PointXYZ minpt, maxpt;
+		pcl::getMinMax3D(*cloud_in, minpt, maxpt);
+		float maxh = maxpt.y - minpt.y; //相机为水平视角时计算可用
+		float maxw = maxpt.x - minpt.x;
+		float mind = minpt.z;
+		//z方向平移使mind固定为常量（参考 Pose Estimation Technique of Scattered Pistons Based on CAD Model and Global Feaetur）(TODO：效果待测试)
+		//Eigen::Matrix4f trans_mat = translate1(0, 0, GConst::min_distance - mind);
+		//pcl::transformPointCloud(*cloud_in, *cloud_in, trans_mat);
+		//pcl::getMinMax3D(*cloud_in, minpt, maxpt);
+		//maxh = maxpt.y - minpt.y;
+		//maxw = maxpt.x - minpt.x;
+		//mind = minpt.z;//测试查看变化
+		//估计法线
+		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+		pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> est_normal;
+		est_normal.setKSearch(16);         //设置k邻域搜索阈值为20个点
+		est_normal.setInputCloud(cloud_in);   //设置输入模型点云
+		est_normal.setSearchMethod(tree);
+		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+		est_normal.compute(*normals);//计算点云法线
+
+		//VFH
+		pcl::VFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> est_vfh;
+		est_vfh.setInputCloud(cloud_in);
+		est_vfh.setInputNormals(normals);
+		//创建一个空的kd树表示法
+		pcl::search::KdTree<PointXYZ>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZ>);
+		est_vfh.setSearchMethod(tree1);
+		//输出的数据集
+		pcl::PointCloud<pcl::VFHSignature308>::Ptr vfhs(new pcl::PointCloud<pcl::VFHSignature308>());
+		est_vfh.compute(*vfhs);
+		////显示vfh特征
+		//pcl::visualization::PCLPlotter plotter;
+		//plotter.addFeatureHistogram<pcl::VFHSignature308>(*vfhs, "vfh", 0);
+		//plotter.plot();
+		//vfh文件带包围盒信息小数*10000倍
+		string vfh_filename = path + "\\" + name + "_" + GConst::g_vfh + "_" + GConst::g_box + "_" + std::to_string((int)(maxh * 10000)) + "-" + std::to_string((int)(maxw * 10000)) + ".pcd";
+		pcl::io::savePCDFile(vfh_filename, *vfhs);
+	}
+	cout << "ok" << endl;
+	return 0;
+}
+
 //shot特征
 int save_shot(string path, vector<string> files)
 {
@@ -182,6 +242,9 @@ int save_feature(string path, vector<string> files, string feature_name) {
 	}
 	else if (feature_name == GConst::g_cvfh) {
 		return save_cvfh(path, files);
+	}
+	else if (feature_name == GConst::g_vfh) {
+		return save_vfh(path, files);
 	}
 	return -1;
 }

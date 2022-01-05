@@ -109,6 +109,43 @@ void calcuate_cvfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& cvf
 	cvfh.compute(cvfhs);
 }
 
+//计算vfh特征
+void calcuate_vfh(const string name, pcl::PointCloud<pcl::VFHSignature308>& vfhs, float normal_r)
+{
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::io::loadPLYFile<pcl::PointXYZ>(name, *cloud);
+	eraseInfPoint(cloud);
+	voxelFilter(cloud, cloud, 0.005, 0.005, 0.005);
+	cout << "滤波后点云数量：" << cloud->size() << endl;
+	//获取包围盒
+	pcl::PointXYZ minpt, maxpt;
+	pcl::getMinMax3D(*cloud, minpt, maxpt);
+	float maxh = maxpt.y - minpt.y; //相机为水平视角时计算可用
+	float maxw = maxpt.x - minpt.x;
+	float mind = minpt.z;
+	//z方向平移使mind固定为常量（参考 Pose Estimation Technique of Scattered Pistons Based on CAD Model and Global Feaetur）(TODO：效果待测试)
+	//Eigen::Matrix4f trans_mat = translate(0, 0, GConst::min_distance - mind);
+	//pcl::transformPointCloud(*cloud, *cloud, trans_mat);
+	//估计法线
+	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+	ne.setInputCloud(cloud);
+	//ne.setRadiusSearch(normal_r);
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+	ne.setSearchMethod(tree);
+	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+	ne.setKSearch(16);	//使用半径在查询点周围0.65范围内的所有邻元素
+	ne.compute(*cloud_normals);
+
+	//VFH
+	pcl::VFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::VFHSignature308> vfh;
+	vfh.setInputCloud(cloud);
+	vfh.setInputNormals(cloud_normals);
+	//创建一个空的kd树表示法
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZ>);
+	vfh.setSearchMethod(tree1);
+	vfh.compute(vfhs);
+}
+
 //计算shot特征
 void calcuate_shot(const string name, pcl::PointCloud<pcl::SHOT352>& shots, float radius)
 {

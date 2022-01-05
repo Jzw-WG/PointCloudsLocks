@@ -17,5 +17,6 @@ VTK_MODULE_INIT(vtkInteractionStyle);
 typedef std::pair<std::string, std::vector<float> > feature_model;//一个用于存储名称，一个用于存储特征
 
 int cvfh_model_build(std::string path, std::vector<std::string> files, std::vector<std::string> model_files);
+int vfh_model_build(std::string path, std::vector<std::string> files, std::vector<std::string> model_files);
 int shot_model_build(std::string path, std::vector<std::string> files, std::vector<std::string> model_files);
 int feature_model_build(std::string path, std::vector<std::string> files, std::vector<std::string> model_files, std::string feature_name = GConst::g_cvfh);

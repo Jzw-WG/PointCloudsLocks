@@ -1,4 +1,4 @@
-#include <cvfh_build_tree.h>
+﻿#include <cvfh_build_tree.h>
 
 using namespace std;
 
@@ -54,6 +54,72 @@ int cvfh_model_build(string path, vector<string> files, vector<string> model_fil
 
 	//训练数据
 	pcl::console::print_highlight("Loaded %d CVFH models. Creating training data %s/%s.\n", (int)models.size(), GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
+
+	//转化数据为FLANN格式
+	flann::Matrix<float> data(new float[models.size() * models[0].second.size()], models.size(), models[0].second.size());
+	for (size_t i = 0; i < data.rows; ++i)
+		for (size_t j = 0; j < data.cols; ++j)
+			data[i][j] = models[i].second[j];
+	//cout << data.rows << endl;
+	//cout << data.cols << endl;
+	cout << models.size() << endl;
+	//保存数据到磁盘
+	string p;
+	flann::save_to_file(data, p.assign(path).append(GConst::training_data_h5_file_name), "training_data");
+	std::ofstream fs;
+	fs.open(p.assign(path).append(GConst::training_data_list_file_name));
+	for (size_t i = 0; i < models.size(); ++i)
+		fs << models[i].first << "\n";
+	fs.close();
+
+	//建立树的索引并将其存储在磁盘上
+	pcl::console::print_error("Building the kdtree index (%s) for %d elements...\n", GConst::kdtree_idx_file_name.c_str(), (int)data.rows);
+	flann::Index<flann::ChiSquareDistance<float> > index(data, flann::LinearIndexParams());
+	//flann::Index<flann::ChiSquareDistance<float> > index (data, flann::KDTreeIndexParams (4));
+	index.buildIndex();
+	index.save(p.assign(path).append(GConst::kdtree_idx_file_name));
+	delete[] data.ptr();
+
+	system("pause");
+	return 0;
+}
+
+//根据vfh特征数据，生成kd_tree，即建立模板库
+//其中VFH文件夹下的.pcd文件储存了vfh特征和xyz格式的模板点云数据
+int vfh_model_build(string path, vector<string> files, vector<string> model_files)
+{
+	//加载vfh特征
+	std::vector<feature_model> models;
+	int idx = 0;
+	for (string s : files)
+	{
+		//找到vfh文件中的包围盒信息
+		string maxh_str = "";
+		string maxw_str = "";
+		string maxd_str = "";
+		getBox(s, maxh_str, maxw_str, maxd_str);
+
+		//读取vfh特征
+		feature_model vfh;//存储名称和特征
+		int vfh_idx = 1;
+		pcl::PointCloud<pcl::VFHSignature308> vfhs;
+		pcl::io::loadPCDFile<pcl::VFHSignature308>(s, vfhs);
+		vfh.second.resize(308);
+
+		//将cvfh信息存入vector容器
+		vfh.first = model_files[idx];
+		for (size_t j = 0; j < 308; j++)
+		{
+			vfh.second[j] = vfhs.points[0].histogram[j];
+		}
+		models.push_back(vfh);
+		idx++;
+	}
+	//按包围盒分类，按大小过滤，加速识别速度 TODO
+
+
+	//训练数据
+	pcl::console::print_highlight("Loaded %d VFH models. Creating training data %s/%s.\n", (int)models.size(), GConst::training_data_h5_file_name.c_str(), GConst::training_data_list_file_name.c_str());
 
 	//转化数据为FLANN格式
 	flann::Matrix<float> data(new float[models.size() * models[0].second.size()], models.size(), models[0].second.size());
@@ -157,6 +223,9 @@ int feature_model_build(string path, vector<string> files, vector<string> model_
 	}
 	else if (feature_name == GConst::g_cvfh) {
 		return cvfh_model_build(path, files, model_files);
+	}
+	else if (feature_name == GConst::g_vfh) {
+		return vfh_model_build(path, files, model_files);
 	}
 	return -1;
 }
