@@ -1,6 +1,23 @@
-﻿#include <cvfh_build_tree.h>
+#include <cvfh_build_tree.h>
 
 using namespace std;
+
+void getBox(string file, string& h, string& w, string& d) {
+	string::size_type iPos = file.find_last_of('\\') + 1;
+	string filename = file.substr(iPos, file.length() - iPos);
+	string name = filename.substr(0, filename.rfind("."));
+	string suffix_str = filename.substr(filename.find_last_of('.') + 1);
+	int boxpos = filename.find(GConst::g_box);
+	string bounding_box = "";
+	h = "";
+	w = "";
+	if (boxpos > 0) {
+		bounding_box = name.substr(boxpos + 3 + 1);
+		h = bounding_box.substr(0, bounding_box.rfind("-"));
+		w = bounding_box.substr(bounding_box.rfind("-") + 1);
+	}
+}
+
 //根据cvfh特征数据，生成kd_tree，即建立模板库
 //其中CVFH文件夹下的.pcd文件储存了cvfh特征和xyz格式的模板点云数据
 int cvfh_model_build(string path, vector<string> files, vector<string> model_files)
@@ -11,19 +28,10 @@ int cvfh_model_build(string path, vector<string> files, vector<string> model_fil
 	for (string s : files)
 	{
 		//找到cvfh文件中的包围盒信息
-		string::size_type iPos = s.find_last_of('\\') + 1;
-		string filename = s.substr(iPos, s.length() - iPos);
-		string name = filename.substr(0, filename.rfind("."));
-		string suffix_str = filename.substr(filename.find_last_of('.') + 1);
-		int boxpos = filename.find(GConst::g_box);
-		string bounding_box = "";
 		string maxh_str = "";
 		string maxw_str = "";
-		if (boxpos > 0) {
-			bounding_box = name.substr(boxpos + 3 + 1);
-			maxh_str = bounding_box.substr(0, bounding_box.rfind("-"));
-			maxw_str = bounding_box.substr(bounding_box.rfind("-") + 1);
-		}
+		string maxd_str = "";
+		getBox(s,maxh_str,maxw_str,maxd_str);
 		
 		//读取cvfh特征
 		feature_model cvfh;//存储名称和特征
@@ -86,19 +94,10 @@ int shot_model_build(string path, vector<string> files, vector<string> model_fil
 	for (string s : files)
 	{
 		//找到shot文件中的包围盒信息
-		string::size_type iPos = s.find_last_of('\\') + 1;
-		string filename = s.substr(iPos, s.length() - iPos);
-		string name = filename.substr(0, filename.rfind("."));
-		string suffix_str = filename.substr(filename.find_last_of('.') + 1);
-		int boxpos = filename.find(GConst::g_box);
-		string bounding_box = "";
 		string maxh_str = "";
 		string maxw_str = "";
-		if (boxpos > 0) {
-			bounding_box = name.substr(boxpos + 3 + 1);
-			maxh_str = bounding_box.substr(0, bounding_box.rfind("-"));
-			maxw_str = bounding_box.substr(bounding_box.rfind("-") + 1);
-		}
+		string maxd_str = "";
+		getBox(s, maxh_str, maxw_str, maxd_str);
 
 		//读取shot特征
 		feature_model shot;//存储名称和shot特征
